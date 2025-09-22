@@ -1,6 +1,7 @@
 <script lang="ts">
   import Cat from '$lib/components/Cat/Cat.svelte';
   import { BodyAccessory, HeadAccessory, SkinColour } from '../types/Cat';
+  import ProgressBar from '$lib/components/ProgressBar/ProgressBar.svelte';
 
   let wordsNeeded : number = 10;
   let Head: HeadAccessory = HeadAccessory.None;
@@ -61,8 +62,11 @@
   }
 </style>
 
+<!-- <h1> Progress Bar Test</h1> -->
+
 <div class="container">
   <div class="cat-top-right">
+<ProgressBar {percentage} />
     <Cat {percentage} {Head} {Body} {Skin} {streak} />
   </div>
 
