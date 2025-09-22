@@ -1,6 +1,7 @@
 
 <script lang="ts">
-  import { type BodyAccessory, type HeadAccessory, type SkinColour, Emotions} from "../../types/Cat";
+  import { type BodyAccessory, type HeadAccessory, type SkinColour, Emotions} from "../../../types/Cat";
+  import { getEmotion } from "./catEmotion";
 
     export let percentage : number;
     export let Head : HeadAccessory;
@@ -9,21 +10,12 @@
     export let streak : number;
     let emotion: Emotions;
 
-    switch (true) {
-    case percentage >= 80:
-        emotion = Emotions.Happy;
-        break;
-    case percentage >= 50:
-        emotion = Emotions.Neutral;
-        break;
-    default:
-        emotion = Emotions.Sad;
-    }
-    
+    $: emotion = getEmotion(percentage , streak);
+
 </script>
 
 <div>
-  <div>Percentage: {percentage}</div>
+  <div>Percentage: {percentage} %</div>
   <div>Head ID: {Head}</div>
     <div>Skin ID: {Skin}</div>
     <div>Body ID: {Body}</div>
