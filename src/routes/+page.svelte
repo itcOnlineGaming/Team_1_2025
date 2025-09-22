@@ -2,7 +2,7 @@
   import Cat from '$lib/components/Cat/Cat.svelte';
   import { BodyAccessory, HeadAccessory, SkinColour } from '../types/Cat';
 
-  const WORDS_NEEDED : number = 300;
+  let wordsNeeded : number = 300;
   let Head: HeadAccessory = HeadAccessory.None;
   let Body: BodyAccessory = BodyAccessory.None;
   let Skin: SkinColour = SkinColour.White;
@@ -14,7 +14,18 @@
     ? 0 
     : userInput.trim().split(/\s+/).length;
 
-    $: percentage = Number(Math.min(wordCount / WORDS_NEEDED, 1).toFixed(2)) * 100;
+    $: percentage = Number(Math.min(wordCount / wordsNeeded, 1).toFixed(2)) * 100;
+
+
+    function handleNewDay(){
+        if (wordCount<wordsNeeded){
+            streak = 0;
+        }
+        else {
+            streak ++;
+        }
+        userInput='';
+    }
 
 
 </script>
@@ -57,5 +68,7 @@
   placeholder="Type here..."
   aria-label="Typing box"
 />
-  <div class="word-count">Word count: {wordCount} / {WORDS_NEEDED}</div>
+  <div class="word-count">Word count: {wordCount} / {wordsNeeded}</div>
+
+  <button onclick={handleNewDay}>Next Day</button>
 </div>

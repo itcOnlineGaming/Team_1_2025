@@ -17,7 +17,8 @@ export enum BodyAccessory {
 }
 
 export enum Emotions {
-  Happy,
-  Neutral,
-  Sad,
+  Happy = "Happy",
+  Neutral = "Neutral",
+  Sad = "Sad",
+  Elated = "Elated",
 }
