@@ -10,6 +10,9 @@ export function getEmotion(percentage: number, streak: number): Emotions {
   } else if (percentage >= 25) {
     return Emotions.Neutral;
   } else {
+    if (streak > 2) {
+      return Emotions.Neutral;
+    }
     return Emotions.Sad;
   }
 }

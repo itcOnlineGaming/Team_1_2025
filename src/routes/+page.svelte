@@ -2,7 +2,7 @@
   import Cat from '$lib/components/Cat/Cat.svelte';
   import { BodyAccessory, HeadAccessory, SkinColour } from '../types/Cat';
 
-  let wordsNeeded : number = 300;
+  let wordsNeeded : number = 10;
   let Head: HeadAccessory = HeadAccessory.None;
   let Body: BodyAccessory = BodyAccessory.None;
   let Skin: SkinColour = SkinColour.White;
@@ -17,13 +17,17 @@
     $: percentage = Number(Math.min(wordCount / wordsNeeded, 1).toFixed(2)) * 100;
 
 
+    // let variable = localStorage.getItem('dailyStreak')
+
+
     function handleNewDay(){
-        if (wordCount<wordsNeeded){
+        if (wordCount < wordsNeeded){
             streak = 0;
         }
         else {
             streak ++;
         }
+        localStorage.setItem('dailyStreak', streak.toString())
         userInput='';
     }
 
@@ -71,4 +75,5 @@
   <div class="word-count">Word count: {wordCount} / {wordsNeeded}</div>
 
   <button onclick={handleNewDay}>Next Day</button>
+  <button onclick={()=>{userInput=''}}>Clear</button>
 </div>

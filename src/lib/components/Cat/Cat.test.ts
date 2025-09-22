@@ -22,8 +22,12 @@ describe("getEmotion function", () => {
     expect(getEmotion(74, 2)).toBe(Emotions.Neutral);
   });
 
-  it("returns Sad if percentage < 25 and streak > 0", () => {
+  it("returns Sad if percentage < 25 and streak < 2", () => {
     expect(getEmotion(20, 1)).toBe(Emotions.Sad);
-    expect(getEmotion(0, 3)).toBe(Emotions.Sad);
+    expect(getEmotion(0, 2)).toBe(Emotions.Sad);
+  });
+  it("returns Neutral if percentage < 25 and streak > 2", () => {
+    expect(getEmotion(20, 10)).toBe(Emotions.Neutral);
+    expect(getEmotion(0, 3)).toBe(Emotions.Neutral);
   });
 });
