@@ -5,5 +5,3 @@ describe("Test", () => {
     expect(0 == 0);
   });
 });
-
-describe("Cat getting Correct emotion based on word Count", () => {});
