@@ -1,5 +1,9 @@
 {
 	"/": [],
 	"/admin": [],
-	"/evaluation": []
+	"/api/templates": [
+		"src/routes/api/templates/+server.ts"
+	],
+	"/evaluation": [],
+	"/templates/create": []
 }

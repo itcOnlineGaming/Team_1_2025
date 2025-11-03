@@ -8,3 +8,4 @@ interface Template {
 }
 
 export const selectedTemplate = writable<Template | null>(null);
+export const templates = writable<Template[]>([]);
