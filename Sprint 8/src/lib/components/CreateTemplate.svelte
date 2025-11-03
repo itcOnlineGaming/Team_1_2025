@@ -13,7 +13,14 @@
 		id: '',
 		name: '',
 		description: '',
-		questions: []
+		questions: [
+			{
+				id: 'q1',
+				label: 'How do you feel about this session?',
+				type: 'text',
+				stars: true
+			}
+		]
 	};
 
 	let message = '';
@@ -30,6 +37,11 @@
 	}
 
 	function removeQuestion(index: number) {
+		// Prevent removal of the first question (default rating question)
+		if (index === 0) {
+			message = 'Cannot remove the default session rating question';
+			return;
+		}
 		template.questions = template.questions.filter((_, i) => i !== index);
 		// Re-index question IDs
 		template.questions = template.questions.map((q, i) => ({
@@ -80,7 +92,14 @@
 					id: '',
 					name: '',
 					description: '',
-					questions: []
+					questions: [
+						{
+							id: 'q1',
+							label: 'How do you feel about this session?',
+							type: 'text',
+							stars: true
+						}
+					]
 				};
 			} else {
 				const error = await response.text();
@@ -136,26 +155,34 @@
 		</div>
 
 		{#each template.questions as question, i}
-			<div class="question-card">
+			<div class="question-card" class:default-question={i === 0}>
 				<div class="question-header">
-					<span class="question-number">Question {i + 1}</span>
-					<button type="button" on:click={() => removeQuestion(i)} class="btn-remove"> ✕ </button>
+					<span class="question-number">
+						Question {i + 1}
+						{#if i === 0}
+							<span class="default-badge">Default</span>
+						{/if}
+					</span>
+					{#if i !== 0}
+						<button type="button" on:click={() => removeQuestion(i)} class="btn-remove"> ✕ </button>
+					{/if}
 				</div>
 
 				<div class="form-group">
-					<label>Question Label *</label>
+					<label>Question Label {i === 0 ? '(locked)' : '*'}</label>
 					<input
 						type="text"
 						bind:value={question.label}
 						placeholder="Enter your question"
+						disabled={i === 0}
 						required
 					/>
 				</div>
 
 				<div class="form-row">
 					<div class="form-group">
-						<label>Question Type *</label>
-						<select bind:value={question.type}>
+						<label>Question Type {i === 0 ? '(locked)' : '*'}</label>
+						<select bind:value={question.type} disabled={i === 0}>
 							<option value="text">Text</option>
 							<option value="select">Select</option>
 							<option value="number">Number</option>
@@ -164,8 +191,8 @@
 
 					<div class="form-group">
 						<label>
-							<input type="checkbox" bind:checked={question.stars} />
-							Include Star Rating
+							<input type="checkbox" bind:checked={question.stars} disabled={i === 0} />
+							Include Star Rating {i === 0 ? '(always on)' : ''}
 						</label>
 					</div>
 				</div>
@@ -242,6 +269,13 @@
 		font-size: 1rem;
 	}
 
+	.form-group input:disabled,
+	.form-group select:disabled {
+		background-color: #f5f5f5;
+		cursor: not-allowed;
+		color: #999;
+	}
+
 	.form-row {
 		display: flex;
 		gap: 1rem;
@@ -271,6 +305,11 @@
 		border: 1px solid #e0e0e0;
 	}
 
+	.question-card.default-question {
+		background: #e8f5e9;
+		border: 2px solid #4caf50;
+	}
+
 	.question-header {
 		display: flex;
 		justify-content: space-between;
@@ -281,6 +320,18 @@
 	.question-number {
 		font-weight: 600;
 		color: #555;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.default-badge {
+		background: #4caf50;
+		color: white;
+		padding: 0.2rem 0.6rem;
+		border-radius: 12px;
+		font-size: 0.75rem;
+		font-weight: 700;
 	}
 
 	.options-section {

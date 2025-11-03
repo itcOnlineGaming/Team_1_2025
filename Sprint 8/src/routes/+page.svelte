@@ -1,29 +1,52 @@
 <script lang="ts">
 	import Popup from '$lib/components/Popup.svelte';
+	import TemplateSelector from '$lib/components/TemplateSelector.svelte';
 	import { selectedTemplate } from '$lib/stores/templateStore';
 	import { goto } from '$app/navigation';
 	import templatesData from '$lib/data/templates.json';
 
 	let showInitialPopup = $state(true);
 	let consentChecked = $state(false);
-	let selectedTemplateId = $state('');
+	let selectedTemplateData: any = $state(null);
 
 	const templates = templatesData.templates;
 
+	function handleTemplateSelect(template: any) {
+		selectedTemplateData = template;
+		console.log('Template selected:', template);
+	}
+
 	function startTest() {
-		if (consentChecked && selectedTemplateId) {
-			const template = templates.find((t) => t.id === selectedTemplateId);
-			if (template) {
-				selectedTemplate.set(template);
-				showInitialPopup = false;
-				goto('/evaluation');
-			}
+		if (consentChecked && selectedTemplateData) {
+			selectedTemplate.set(selectedTemplateData);
+			showInitialPopup = false;
+			goto('/evaluation');
 		}
+	}
+
+	function goToAdmin() {
+		goto('/admin');
+	}
+
+	function goToViewTemplates() {
+		goto('/templates/view');
 	}
 </script>
 
 <main>
+	<div class="nav-buttons">
+		<button class="nav-btn" onclick={goToAdmin}>Admin</button>
+		<button class="nav-btn" onclick={goToViewTemplates}>View Templates</button>
+	</div>
 	<h1>Welcome</h1>
+
+	<button
+		onclick={() => {
+			showInitialPopup = true;
+		}}
+	>
+		Start Test
+	</button>
 </main>
 
 <Popup bind:isOpen={showInitialPopup} title="Welcome to Our User Test" showCloseButton={false}>
@@ -38,19 +61,15 @@
 		<p><strong>Time Required:</strong> Approximately 1-2 minutes</p>
 
 		<div class="template-section">
-			<label for="template-select"><strong>Select a Template:</strong></label>
-			<select id="template-select" bind:value={selectedTemplateId} class="template-select">
-				<option value="">Choose a template...</option>
-				{#each templates as template}
-					<option value={template.id}>{template.name}</option>
-				{/each}
-			</select>
+			<label><strong>Select a Template:</strong></label>
+			<TemplateSelector
+				{templates}
+				selectedId={selectedTemplateData?.id || ''}
+				onSelect={handleTemplateSelect}
+			/>
 
-			{#if selectedTemplateId}
-				{@const selectedTemplateData = templates.find((t) => t.id === selectedTemplateId)}
-				{#if selectedTemplateData}
-					<p class="template-description">{selectedTemplateData.description}</p>
-				{/if}
+			{#if selectedTemplateData}
+				<p class="template-description">{selectedTemplateData.description}</p>
 			{/if}
 		</div>
 
@@ -61,7 +80,11 @@
 			</label>
 		</div>
 
-		<button class="start-btn" onclick={startTest} disabled={!consentChecked || !selectedTemplateId}>
+		<button
+			class="start-btn"
+			onclick={startTest}
+			disabled={!consentChecked || !selectedTemplateData}
+		>
 			Start Test
 		</button>
 	</div>
@@ -75,6 +98,14 @@
 		justify-content: center;
 		min-height: 100vh;
 		gap: 1rem;
+	}
+
+	.nav-buttons {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		display: flex;
+		gap: 0.5rem;
 	}
 
 	button {
@@ -97,6 +128,16 @@
 		cursor: not-allowed;
 	}
 
+	.nav-btn {
+		padding: 0.5rem 1rem;
+		font-size: 0.9rem;
+		background-color: #2196f3;
+	}
+
+	.nav-btn:hover {
+		background-color: #0b7dda;
+	}
+
 	.popup-inner {
 		display: flex;
 		flex-direction: column;
@@ -117,23 +158,7 @@
 
 	.template-section label {
 		display: block;
-		margin-bottom: 0.5rem;
-	}
-
-	.template-select {
-		width: 100%;
-		padding: 0.5rem;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		font-size: 1rem;
-		background-color: white;
-		cursor: pointer;
-	}
-
-	.template-select:focus {
-		outline: none;
-		border-color: #4caf50;
-		box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+		margin-bottom: 0.75rem;
 	}
 
 	.template-description {

@@ -15,6 +15,7 @@
 		likelihood: 3
 	});
 
+	console.log(selectedTemplate);
 	let template = $state($selectedTemplate);
 
 	onMount(() => {

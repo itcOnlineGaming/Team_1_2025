@@ -32,7 +32,7 @@
 </script>
 
 <form on:submit|preventDefault={submitForm} class="space-y-6">
-	<div class="mx-10 p-4">
+	<div class="background mx-10 p-4">
 		{#each template as q}
 			<div class="my-4">
 				<div class="rounded-lg border p-4 shadow-sm">
@@ -80,3 +80,11 @@
 		</button>
 	</div>
 </form>
+
+<style>
+	.background {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 2rem;
+	}
+</style>

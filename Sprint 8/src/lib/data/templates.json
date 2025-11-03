@@ -146,11 +146,77 @@
         {
             "id": "Test",
             "name": "Test",
-            "description": "Test",
+            "description": "test",
+            "questions": [
+                {
+                    "id": "q1",
+                    "label": "question",
+                    "type": "number",
+                    "stars": true
+                }
+            ]
+        },
+        {
+            "id": "this-is-a-user-id",
+            "name": "User ID Template",
+            "description": "User Template",
             "questions": [
                 {
                     "id": "q1",
                     "label": "Test",
+                    "type": "number",
+                    "stars": true
+                },
+                {
+                    "id": "q2",
+                    "label": "Question 2",
+                    "type": "select",
+                    "stars": false,
+                    "options": [
+                        "Options Data",
+                        "Raaaah"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "test",
+            "name": "test",
+            "description": "",
+            "questions": [
+                {
+                    "id": "q1",
+                    "label": "How do you feel about this session?",
+                    "type": "text",
+                    "stars": true
+                }
+            ]
+        },
+        {
+            "id": "red-pen",
+            "name": "Red Pen Cool",
+            "description": "Crayola Super Tips",
+            "questions": [
+                {
+                    "id": "q1",
+                    "label": "How do you feel about this session?",
+                    "type": "text",
+                    "stars": true
+                },
+                {
+                    "id": "q2",
+                    "label": "Round?",
+                    "type": "select",
+                    "stars": false,
+                    "options": [
+                        "Yes",
+                        "No",
+                        "Possibly"
+                    ]
+                },
+                {
+                    "id": "q3",
+                    "label": "Hole?",
                     "type": "text",
                     "stars": true
                 }
