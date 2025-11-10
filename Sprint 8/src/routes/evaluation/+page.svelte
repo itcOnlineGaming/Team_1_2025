@@ -6,6 +6,7 @@
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import type { ActiveSession } from '$lib/stores/sessionStore';
+	import { base } from '$app/paths';
 
     let activeSession = $state<ActiveSession | null>(null);
     let isSubmitting = $state(false);
@@ -26,7 +27,7 @@
                 } else if (!activeSession) {
                     console.error('No active session found after retries');
                     alert('No active session found. Please start a session first.');
-                    goto('/');
+                    goto(`${base}/`);
                 }
             }, 100);
 
@@ -40,7 +41,7 @@
         if (isSubmitting) return;
         if (!activeSession) {
             alert('Session was lost. Please try again.');
-            goto('/');
+            goto(`${base}/`);
             return;
         }
         
@@ -54,7 +55,7 @@
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Navigate with graphs parameter
-        goto('/?showGraphs=true');
+        goto(`${base}/?showGraphs=true`);
     };
 </script>
 

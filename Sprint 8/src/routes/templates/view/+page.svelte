@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import templatesData from '$lib/data/templates.json';
     import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 
     interface Template {
         id: string;
@@ -28,7 +29,7 @@
     });
 
     function navigateToCreate() {
-        goto('/templates/create');
+        goto(`${base}/templates/create`);
     }
 
     function openPreview(template: Template) {
