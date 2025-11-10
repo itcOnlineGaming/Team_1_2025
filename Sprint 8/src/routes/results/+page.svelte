@@ -55,7 +55,7 @@
     }
 
     function goBack() {
-        goto('/');
+        goto(`${base}/`);
     }
 
     function clearAllData() {

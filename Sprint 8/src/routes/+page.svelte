@@ -8,6 +8,7 @@
     import { onMount } from 'svelte';
     import templatesData from '$lib/data/templates.json';
     import type { Question } from '$lib/components/EvaluationQuestionnaire.svelte';
+	import { base } from '$app/paths';
 
 
     interface Template {
@@ -67,7 +68,7 @@
 
 
     function handleEndSession() {
-        goto('/evaluation');
+        goto(`${base}/evaluation`);
     }
 
 
@@ -86,11 +87,11 @@
     function handleFinish() {
         showEndTestPrompt = false;
         showWelcomePopup = false;
-        goto('/results');
+        goto(`${base}/results`);
     }
 
     function goToViewTemplates() {
-        goto('/templates/view');
+        goto(`${base}/templates/view`);
     }
 </script>
 
@@ -98,7 +99,7 @@
 <main>
     <div class="nav-buttons">
         <button class="btn-info btn-sm" onclick={goToViewTemplates}>View Templates</button>
-        <button class="btn-info btn-sm" onclick={() => goto('/results')}>📊 Results</button>
+        <button class="btn-info btn-sm" onclick={() => goto(`${base}/results`)}>📊 Results</button>
     </div>
     
     <div class="hero-content">
