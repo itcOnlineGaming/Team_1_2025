@@ -1,420 +1,396 @@
 <script lang="ts">
-	import { selectedTemplate } from '$lib/stores/templateStore';
-	import type { Question } from '$lib/components/EvaluationQuestionnaire.svelte';
+    import { selectedTemplate } from '$lib/stores/templateStore';
+    import type { Question } from '$lib/components/EvaluationQuestionnaire.svelte';
 
-	interface Template {
-		id: string;
-		name: string;
-		description: string;
-		questions: Question[];
-	}
+    interface Template {
+        id: string;
+        name: string;
+        description: string;
+        questions: Question[];
+    }
 
-	let template: Template = {
-		id: '',
-		name: '',
-		description: '',
-		questions: [
-			{
-				id: 'q1',
-				label: 'How do you feel about this session?',
-				type: 'text',
-				stars: true
-			}
-		]
-	};
+    let template: Template = {
+        id: '',
+        name: '',
+        description: '',
+        questions: [
+            {
+                id: 'q1',
+                label: 'How do you feel about this session?',
+                type: 'text',
+                stars: true,
+                starType: 'stars'
+            }
+        ]
+    };
 
-	let message = '';
-	let isLoading = false;
+    let message = '';
+    let isLoading = false;
 
-	function addQuestion() {
-		const newQuestion: Question = {
-			id: `q${template.questions.length + 1}`,
-			label: '',
-			type: 'text',
-			stars: false
-		};
-		template.questions = [...template.questions, newQuestion];
-	}
+    function addQuestion() {
+        const newQuestion: Question = {
+            id: `q${template.questions.length + 1}`,
+            label: '',
+            type: 'text',
+            stars: false
+        };
+        template.questions = [...template.questions, newQuestion];
+    }
 
-	function removeQuestion(index: number) {
-		// Prevent removal of the first question (default rating question)
-		if (index === 0) {
-			message = 'Cannot remove the default session rating question';
-			return;
-		}
-		template.questions = template.questions.filter((_, i) => i !== index);
-		// Re-index question IDs
-		template.questions = template.questions.map((q, i) => ({
-			...q,
-			id: `q${i + 1}`
-		}));
-	}
+    function removeQuestion(index: number) {
+        if (index === 0) {
+            message = 'Cannot remove the default session rating question';
+            return;
+        }
+        template.questions = template.questions.filter((_, i) => i !== index);
+        template.questions = template.questions.map((q, i) => ({
+            ...q,
+            id: `q${i + 1}`
+        }));
+    }
 
-	function addOption(questionIndex: number) {
-		const question = template.questions[questionIndex];
-		if (!question.options) {
-			question.options = [];
-		}
-		question.options = [...question.options, ''];
-		template.questions = template.questions;
-	}
+    function addOption(questionIndex: number) {
+        const question = template.questions[questionIndex];
+        if (!question.options) {
+            question.options = [];
+        }
+        question.options = [...question.options, ''];
+        template.questions = template.questions;
+    }
 
-	function removeOption(questionIndex: number, optionIndex: number) {
-		const question = template.questions[questionIndex];
-		if (question.options) {
-			question.options = question.options.filter((_, i) => i !== optionIndex);
-			template.questions = template.questions;
-		}
-	}
+    function removeOption(questionIndex: number, optionIndex: number) {
+        const question = template.questions[questionIndex];
+        if (question.options) {
+            question.options = question.options.filter((_, i) => i !== optionIndex);
+            template.questions = template.questions;
+        }
+    }
 
-	async function saveTemplate() {
-		if (!template.id || !template.name || template.questions.length === 0) {
-			message = 'Please fill in all required fields and add at least one question';
-			return;
-		}
+    function toggleStars(questionIndex: number) {
+        const question = template.questions[questionIndex];
+        if (question.stars && !question.starType) {
+            question.starType = 'stars'; // Default to stars type
+        }
+        template.questions = template.questions;
+    }
 
-		isLoading = true;
-		message = '';
+    async function saveTemplate() {
+        if (!template.id || !template.name || template.questions.length === 0) {
+            message = 'Please fill in all required fields and add at least one question';
+            return;
+        }
 
-		try {
-			const response = await fetch('/api/templates', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(template)
-			});
+        isLoading = true;
+        message = '';
 
-			if (response.ok) {
-				message = 'Template saved successfully!';
-				selectedTemplate.set(template);
-				template = {
-					id: '',
-					name: '',
-					description: '',
-					questions: [
-						{
-							id: 'q1',
-							label: 'How do you feel about this session?',
-							type: 'text',
-							stars: true
-						}
-					]
-				};
-			} else {
-				const error = await response.text();
-				message = `Error: ${error}`;
-			}
-		} catch (error) {
-			message = `Error saving template: ${error}`;
-		} finally {
-			isLoading = false;
-		}
-	}
+        try {
+            const response = await fetch('/api/templates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(template)
+            });
+
+            if (response.ok) {
+                message = 'Template saved successfully!';
+                selectedTemplate.set(template);
+                template = {
+                    id: '',
+                    name: '',
+                    description: '',
+                    questions: [
+                        {
+                            id: 'q1',
+                            label: 'How do you feel about this session?',
+                            type: 'text',
+                            stars: true,
+                            starType: 'stars'
+                        }
+                    ]
+                };
+            } else {
+                const error = await response.text();
+                message = `Error: ${error}`;
+            }
+        } catch (error) {
+            message = `Error saving template: ${error}`;
+        } finally {
+            isLoading = false;
+        }
+    }
 </script>
 
 <div class="template-creator">
-	<h2>Create New Template</h2>
+    <h2>Create New Template</h2>
 
-	<div class="form-group">
-		<label for="template-id">Template ID *</label>
-		<input
-			id="template-id"
-			type="text"
-			bind:value={template.id}
-			placeholder="e.g., user-satisfaction"
-			required
-		/>
-	</div>
+    <div class="form-group">
+        <label for="template-id">Template ID *</label>
+        <input
+            id="template-id"
+            type="text"
+            class="input-field"
+            bind:value={template.id}
+            placeholder="e.g., user-satisfaction"
+            required
+        />
+    </div>
 
-	<div class="form-group">
-		<label for="template-name">Template Name *</label>
-		<input
-			id="template-name"
-			type="text"
-			bind:value={template.name}
-			placeholder="e.g., User Satisfaction Survey"
-			required
-		/>
-	</div>
+    <div class="form-group">
+        <label for="template-name">Template Name *</label>
+        <input
+            id="template-name"
+            type="text"
+            class="input-field"
+            bind:value={template.name}
+            placeholder="e.g., User Satisfaction Survey"
+            required
+        />
+    </div>
 
-	<div class="form-group">
-		<label for="template-desc">Description</label>
-		<textarea
-			id="template-desc"
-			bind:value={template.description}
-			placeholder="Brief description of the template"
-			rows="3"
-		/>
-	</div>
+    <div class="form-group">
+        <label for="template-desc">Description</label>
+        <textarea
+            id="template-desc"
+            class="input-field"
+            bind:value={template.description}
+            placeholder="Brief description of the template"
+            rows="3"
+        />
+    </div>
 
-	<div class="questions-section">
-		<div class="section-header">
-			<h3>Questions</h3>
-			<button type="button" on:click={addQuestion} class="btn-add"> + Add Question </button>
-		</div>
+    <div class="questions-section">
+        <div class="section-header">
+            <h3>Questions</h3>
+            <button type="button" on:click={addQuestion} class="btn-success"> + Add Question </button>
+        </div>
 
-		{#each template.questions as question, i}
-			<div class="question-card" class:default-question={i === 0}>
-				<div class="question-header">
-					<span class="question-number">
-						Question {i + 1}
-						{#if i === 0}
-							<span class="default-badge">Default</span>
-						{/if}
-					</span>
-					{#if i !== 0}
-						<button type="button" on:click={() => removeQuestion(i)} class="btn-remove"> ✕ </button>
-					{/if}
-				</div>
+        {#each template.questions as question, i}
+            <div class="card question-card" class:default-question={i === 0}>
+                <div class="question-header">
+                    <span class="question-number">
+                        Question {i + 1}
+                        {#if i === 0}
+                            <span class="default-badge">Default</span>
+                        {/if}
+                    </span>
+                    {#if i !== 0}
+                        <button type="button" on:click={() => removeQuestion(i)} class="btn-danger btn-sm"> ✕ </button>
+                    {/if}
+                </div>
 
-				<div class="form-group">
-					<label>Question Label {i === 0 ? '(locked)' : '*'}</label>
-					<input
-						type="text"
-						bind:value={question.label}
-						placeholder="Enter your question"
-						disabled={i === 0}
-						required
-					/>
-				</div>
+                <div class="form-group">
+                    <label>Question Label {i === 0 ? '(locked)' : '*'}</label>
+                    <input
+                        type="text"
+                        class="input-field"
+                        bind:value={question.label}
+                        placeholder="Enter your question"
+                        disabled={i === 0}
+                        required
+                    />
+                </div>
 
-				<div class="form-row">
-					<div class="form-group">
-						<label>Question Type {i === 0 ? '(locked)' : '*'}</label>
-						<select bind:value={question.type} disabled={i === 0}>
-							<option value="text">Text</option>
-							<option value="select">Select</option>
-							<option value="number">Number</option>
-						</select>
-					</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Question Type {i === 0 ? '(locked)' : '*'}</label>
+                        <select class="input-field" bind:value={question.type} disabled={i === 0}>
+                            <option value="text">Text</option>
+                            <option value="select">Select</option>
+                            <option value="number">Number</option>
+                        </select>
+                    </div>
 
-					<div class="form-group">
-						<label>
-							<input type="checkbox" bind:checked={question.stars} disabled={i === 0} />
-							Include Star Rating {i === 0 ? '(always on)' : ''}
-						</label>
-					</div>
-				</div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input 
+                                type="checkbox" 
+                                bind:checked={question.stars} 
+                                disabled={i === 0}
+                                on:change={() => toggleStars(i)}
+                            />
+                            Include Rating {i === 0 ? '(always on)' : ''}
+                        </label>
+                    </div>
+                </div>
 
-				{#if question.type === 'select'}
-					<div class="options-section">
-						<div class="section-header">
-							<label>Options</label>
-							<button type="button" on:click={() => addOption(i)} class="btn-add-small">
-								+ Add Option
-							</button>
-						</div>
+                {#if question.stars}
+                    <div class="form-group">
+                        <label>Rating Type {i === 0 ? '(locked)' : '*'}</label>
+                        <select 
+                            class="input-field" 
+                            bind:value={question.starType} 
+                            disabled={i === 0}
+                        >
+                            <option value="stars">⭐ Stars</option>
+                            <option value="slider">🎚️ Slider</option>
+                            <option value="emoji">😊 Emoji</option>
+                            <option value="numeric">🔢 Numeric Buttons</option>
+                        </select>
+                    </div>
+                {/if}
 
-						{#if question.options}
-							{#each question.options as option, j}
-								<div class="option-row">
-									<input
-										type="text"
-										bind:value={question.options[j]}
-										placeholder="Option {j + 1}"
-									/>
-									<button
-										type="button"
-										on:click={() => removeOption(i, j)}
-										class="btn-remove-small"
-									>
-										✕
-									</button>
-								</div>
-							{/each}
-						{/if}
-					</div>
-				{/if}
-			</div>
-		{/each}
-	</div>
+                {#if question.type === 'select'}
+                    <div class="options-section">
+                        <div class="section-header">
+                            <label>Options</label>
+                            <button type="button" on:click={() => addOption(i)} class="btn-info btn-sm">
+                                + Add Option
+                            </button>
+                        </div>
 
-	<button type="button" on:click={saveTemplate} disabled={isLoading} class="btn-save">
-		{isLoading ? 'Saving...' : 'Save Template'}
-	</button>
+                        {#if question.options}
+                            {#each question.options as option, j}
+                                <div class="option-row">
+                                    <input
+                                        type="text"
+                                        class="input-field"
+                                        bind:value={question.options[j]}
+                                        placeholder="Option {j + 1}"
+                                    />
+                                    <button
+                                        type="button"
+                                        on:click={() => removeOption(i, j)}
+                                        class="btn-danger btn-sm"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            {/each}
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+        {/each}
+    </div>
 
-	{#if message}
-		<div class="message" class:success={message.includes('success')}>
-			{message}
-		</div>
-	{/if}
+    <button type="button" on:click={saveTemplate} disabled={isLoading} class="btn-primary btn-full">
+        {isLoading ? 'Saving...' : 'Save Template'}
+    </button>
+
+    {#if message}
+        <div class="message" class:message-success={message.includes('success')} class:message-error={!message.includes('success')}>
+            {message}
+        </div>
+    {/if}
 </div>
 
 <style>
-	.template-creator {
-		max-width: 800px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
+    .template-creator {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
 
-	.form-group {
-		margin-bottom: 1.5rem;
-	}
+    .template-creator h2 {
+        color: var(--color-text-primary);
+        margin-bottom: 2rem;
+    }
 
-	.form-group label {
-		display: block;
-		margin-bottom: 0.5rem;
-		font-weight: 600;
-	}
+    .template-creator h3 {
+        color: var(--color-text-primary);
+        margin: 0;
+    }
 
-	.form-group input[type='text'],
-	.form-group input[type='number'],
-	.form-group textarea,
-	.form-group select {
-		width: 100%;
-		padding: 0.75rem;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		font-size: 1rem;
-	}
+    .form-group {
+        margin-bottom: 1.5rem;
+        width: 100%;
+    }
 
-	.form-group input:disabled,
-	.form-group select:disabled {
-		background-color: #f5f5f5;
-		cursor: not-allowed;
-		color: #999;
-	}
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+    }
 
-	.form-row {
-		display: flex;
-		gap: 1rem;
-		align-items: end;
-	}
+    .form-group .input-field {
+        width: 100%;
+        max-width: none;
+    }
 
-	.form-row .form-group {
-		flex: 1;
-	}
+    .checkbox-label {
+        display: flex !important;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
 
-	.questions-section {
-		margin: 2rem 0;
-	}
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        width: 100%;
+    }
 
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
+    .form-row .form-group {
+        flex: 1;
+        min-width: 0;
+    }
 
-	.question-card {
-		background: #f9f9f9;
-		padding: 1.5rem;
-		border-radius: 8px;
-		margin-bottom: 1rem;
-		border: 1px solid #e0e0e0;
-	}
+    .questions-section {
+        margin: 2rem 0;
+    }
 
-	.question-card.default-question {
-		background: #e8f5e9;
-		border: 2px solid #4caf50;
-	}
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
 
-	.question-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
+    .question-card {
+        margin-bottom: 1rem;
+        padding: 2rem;
+        width: 100%;
+    }
 
-	.question-number {
-		font-weight: 600;
-		color: #555;
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
+    .question-card.default-question {
+        background: #E8F5E9;
+        border: 2px solid var(--color-success);
+    }
 
-	.default-badge {
-		background: #4caf50;
-		color: white;
-		padding: 0.2rem 0.6rem;
-		border-radius: 12px;
-		font-size: 0.75rem;
-		font-weight: 700;
-	}
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
 
-	.options-section {
-		margin-top: 1rem;
-		padding: 1rem;
-		background: white;
-		border-radius: 4px;
-	}
+    .question-number {
+        font-weight: 600;
+        color: var(--color-text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
 
-	.option-row {
-		display: flex;
-		gap: 0.5rem;
-		margin-bottom: 0.5rem;
-	}
+    .default-badge {
+        background: var(--color-success);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
 
-	.option-row input {
-		flex: 1;
-	}
+    .options-section {
+        margin-top: 1rem;
+        padding: 1.5rem;
+        background: var(--color-bg-secondary);
+        border-radius: 4px;
+        border: 1px solid var(--color-border);
+    }
 
-	button {
-		padding: 0.5rem 1rem;
-		border: none;
-		border-radius: 4px;
-		cursor: pointer;
-		font-size: 0.9rem;
-		transition: all 0.2s;
-	}
+    .option-row {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
 
-	.btn-add {
-		background: #4caf50;
-		color: white;
-	}
-
-	.btn-add:hover {
-		background: #45a049;
-	}
-
-	.btn-add-small {
-		background: #2196f3;
-		color: white;
-		font-size: 0.8rem;
-		padding: 0.4rem 0.8rem;
-	}
-
-	.btn-remove {
-		background: #f44336;
-		color: white;
-		padding: 0.3rem 0.6rem;
-	}
-
-	.btn-remove-small {
-		background: #ff5252;
-		color: white;
-		padding: 0.4rem 0.6rem;
-	}
-
-	.btn-save {
-		background: #2196f3;
-		color: white;
-		padding: 1rem 2rem;
-		font-size: 1rem;
-		width: 100%;
-		font-weight: 600;
-	}
-
-	.btn-save:hover:not(:disabled) {
-		background: #0b7dda;
-	}
-
-	.btn-save:disabled {
-		background: #ccc;
-		cursor: not-allowed;
-	}
-
-	.message {
-		margin-top: 1rem;
-		padding: 1rem;
-		border-radius: 4px;
-		background: #f44336;
-		color: white;
-	}
-
-	.message.success {
-		background: #4caf50;
-	}
+    .option-row input {
+        flex: 1;
+        min-width: 0;
+    }
 </style>
