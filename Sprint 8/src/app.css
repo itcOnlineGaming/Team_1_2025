@@ -1,3 +1,227 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+:root {
+	--color-bg-primary: #f5efe7;
+	--color-bg-secondary: #ffffff;
+	--color-border: #d8c4b6;
+	--color-border-focus: #8b7e74;
+	--color-text-primary: #4f3422;
+	--color-text-secondary: #8b7e74;
+	--color-accent: #7b68a6;
+	--color-accent-hover: #6a5890;
+	--color-accent-active: #5a4880;
+	--color-success: #7b9c6e;
+	--color-success-hover: #6a8b5d;
+	--color-danger: #c17a74;
+	--color-danger-hover: #b06963;
+	--color-info: #8fa8c4;
+	--color-info-hover: #7e97b3;
+}
+
+body {
+	background-color: var(--color-bg-primary);
+	color: var(--color-text-primary);
+	margin: 0;
+	padding: 0;
+	font-family:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Input fields */
+.input-field {
+	width: 100%;
+	min-width: 300px;
+	background-color: var(--color-bg-secondary);
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	padding: 0.75rem;
+	color: var(--color-text-primary);
+	font-size: 1rem;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.input-field:focus {
+	outline: none;
+	border-color: var(--color-border-focus);
+	box-shadow: 0 0 0 2px rgba(139, 126, 116, 0.1);
+}
+
+.input-field:disabled {
+	background-color: #fafaf8;
+	cursor: not-allowed;
+	color: var(--color-text-secondary);
+	opacity: 0.7;
+}
+
+.card {
+	background-color: var(--color-bg-secondary);
+	border: 1px solid var(--color-border);
+	border-radius: 8px;
+	padding: 2rem;
+	box-shadow: 0 1px 3px rgba(79, 52, 34, 0.1);
+}
+
+button {
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	font-weight: 600;
+	transition: all 0.2s ease;
+	padding: 0.5rem 1rem;
+}
+
+button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.btn-primary {
+	background-color: var(--color-accent);
+	color: white;
+	padding: 0.75rem 1.5rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+	background-color: var(--color-accent-hover);
+}
+
+.btn-primary:active:not(:disabled) {
+	background-color: var(--color-accent-active);
+}
+
+.btn-full {
+	width: 100%;
+	padding: 1rem 2rem;
+	font-size: 1rem;
+}
+
+.btn-large {
+	padding: 1rem 2.5rem;
+	font-size: 1.2rem;
+}
+
+.btn-success {
+	background-color: var(--color-success);
+	color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+	background-color: var(--color-success-hover);
+}
+
+.btn-danger {
+	background-color: var(--color-danger);
+	color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+	background-color: var(--color-danger-hover);
+}
+
+.btn-info {
+	background-color: var(--color-info);
+	color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+	background-color: var(--color-info-hover);
+	color: white;
+}
+
+.btn-secondary {
+	background: var(--color-bg-primary);
+	color: var(--color-text-primary);
+	border: 1px solid var(--color-border);
+	padding: 0.75rem 1.5rem;
+}
+
+.btn-secondary:hover:not(:disabled) {
+	background: var(--color-border);
+}
+
+.btn-sm {
+	padding: 0.4rem 0.8rem;
+	font-size: 0.85rem;
+}
+
+.badge {
+	padding: 0.25rem 0.6rem;
+	border-radius: 12px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	white-space: nowrap;
+	display: inline-flex;
+	align-items: center;
+}
+
+.badge-info {
+	background: var(--color-info);
+	color: white;
+}
+
+.badge-secondary {
+	background: var(--color-bg-secondary);
+	border: 1px solid var(--color-border);
+	color: var(--color-text-secondary);
+	text-transform: uppercase;
+}
+
+.badge-accent {
+	background: rgba(123, 104, 166, 0.1);
+	border: 1px solid var(--color-accent);
+	color: var(--color-accent);
+}
+
+.message {
+	margin-top: 1rem;
+	padding: 1rem;
+	border-radius: 4px;
+	font-weight: 500;
+}
+
+.message-success {
+	background-color: var(--color-success);
+	color: white;
+}
+
+.message-error {
+	background-color: var(--color-danger);
+	color: white;
+}
+
+input[type='checkbox'] {
+	cursor: pointer;
+	width: 18px;
+	height: 18px;
+	accent-color: var(--color-accent);
+}
+
+input[type='range'] {
+	width: 100%;
+	accent-color: var(--color-accent);
+}
+
+label {
+	color: var(--color-text-primary);
+}
+
+select,
+textarea {
+	background-color: var(--color-bg-secondary);
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	padding: 0.5rem;
+	color: var(--color-text-primary);
+}
+
+select:focus,
+textarea:focus {
+	outline: none;
+	border-color: var(--color-border-focus);
+	box-shadow: 0 0 0 2px rgba(139, 126, 116, 0.1);
+}

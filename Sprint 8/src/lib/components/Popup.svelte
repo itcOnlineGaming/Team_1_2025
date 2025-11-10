@@ -1,119 +1,123 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+    import { fade } from 'svelte/transition';
 
-	let {
-		isOpen = $bindable(false),
-		title = '',
-		showCloseButton = true,
-		onClose = () => {},
-		children
-	}: {
-		isOpen?: boolean;
-		title?: string;
-		showCloseButton?: boolean;
-		onClose?: () => void;
-		children?: any;
-	} = $props();
+    let {
+        isOpen = $bindable(false),
+        title = '',
+        showCloseButton = true,
+        onClose = () => {},
+        children
+    }: {
+        isOpen?: boolean;
+        title?: string;
+        showCloseButton?: boolean;
+        onClose?: () => void;
+        children?: any;
+    } = $props();
 
-	function handleClose() {
-		isOpen = false;
-		onClose();
-	}
+    function handleClose() {
+        isOpen = false;
+        onClose();
+    }
 
-	function handleBackdropClick(e: MouseEvent) {
-		if (e.target === e.currentTarget) {
-			handleClose();
-		}
-	}
+    function handleBackdropClick(e: MouseEvent) {
+        if (e.target === e.currentTarget) {
+            handleClose();
+        }
+    }
 </script>
 
 {#if isOpen}
-	<div
-		class="popup-backdrop"
-		transition:fade={{ duration: 200 }}
-		onclick={handleBackdropClick}
-		role="dialog"
-		aria-modal="true"
-	>
-		<div class="popup-content">
-			{#if title || showCloseButton}
-				<div class="popup-header">
-					{#if title}
-						<h2>{title}</h2>
-					{/if}
-					{#if showCloseButton}
-						<button class="close-btn" onclick={handleClose} aria-label="Close"> ✕ </button>
-					{/if}
-				</div>
-			{/if}
+    <div
+        class="popup-backdrop"
+        transition:fade={{ duration: 200 }}
+        onclick={handleBackdropClick}
+        role="dialog"
+        aria-modal="true"
+    >
+        <div class="popup-content">
+            {#if title || showCloseButton}
+                <div class="popup-header">
+                    {#if title}
+                        <h2>{title}</h2>
+                    {/if}
+                    {#if showCloseButton}
+                        <button class="close-btn" onclick={handleClose} aria-label="Close"> ✕ </button>
+                    {/if}
+                </div>
+            {/if}
 
-			<div class="popup-body">
-				{@render children?.()}
-			</div>
-		</div>
-	</div>
+            <div class="popup-body">
+                {@render children?.()}
+            </div>
+        </div>
+    </div>
 {/if}
 
 <style>
-	.popup-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: rgba(0, 0, 0, 0.6);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1000;
-	}
+    .popup-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(79, 52, 34, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
 
-	.popup-content {
-		background: white;
-		border-radius: 8px;
-		max-width: 90%;
-		max-height: 90vh;
-		overflow-y: auto;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		width: 500px;
-	}
+    .popup-content {
+        background: var(--color-bg-secondary);
+        border-radius: 8px;
+        max-width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 12px rgba(79, 52, 34, 0.2);
+        width: 500px;
+        border: 1px solid var(--color-border);
+    }
 
-	.popup-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 1.5rem;
-		border-bottom: 1px solid #e5e7eb;
-	}
+    .popup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+        background-color: var(--color-bg-primary);
+    }
 
-	.popup-header h2 {
-		margin: 0;
-		font-size: 1.25rem;
-		font-weight: 600;
-	}
+    .popup-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+    }
 
-	.close-btn {
-		background: none;
-		border: none;
-		font-size: 1.5rem;
-		cursor: pointer;
-		color: #6b7280;
-		padding: 0;
-		width: 30px;
-		height: 30px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 4px;
-		transition: all 0.2s;
-	}
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--color-text-secondary);
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
 
-	.close-btn:hover {
-		background-color: #f3f4f6;
-		color: #111827;
-	}
+    .close-btn:hover {
+        background-color: var(--color-bg-primary);
+        color: var(--color-text-primary);
+    }
 
-	.popup-body {
-		padding: 1.5rem;
-	}
+    .popup-body {
+        padding: 1.5rem;
+        background-color: var(--color-bg-secondary);
+    }
 </style>

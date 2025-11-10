@@ -27,7 +27,8 @@
 			'Intuitive Rating',
 			'Had Issues',
 			'Issue Details',
-			'Likelihood Rating'
+			'Likelihood Rating',
+			'Template Name'
 		];
 		const rows = data.map((item) => [
 			item.sessionId,
@@ -35,7 +36,8 @@
 			item.feedback.intuitive,
 			item.feedback.issues,
 			item.feedback.issueDetails || '',
-			item.feedback.likelihood
+			item.feedback.likelihood,
+			item.templateName
 		]);
 
 		return [headers, ...rows].map((row) => row.join(',')).join('\n');
@@ -68,6 +70,8 @@
 					<p><strong>Details:</strong> {response.feedback.issueDetails}</p>
 				{/if}
 				<p><strong>Likelihood:</strong> {response.feedback.likelihood}/5</p>
+				<p><strong>Template Name:</strong> {response.templateName}</p>
+				<p><strong>Template Id:</strong> {response.templateId}</p>
 			</div>
 		{/each}
 	</div>

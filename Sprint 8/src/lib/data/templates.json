@@ -1,160 +1,77 @@
 {
-    "templates": [
-        {
-            "id": "user-satisfaction",
-            "name": "User Satisfaction Survey",
-            "description": "General user satisfaction questionnaire",
-            "questions": [
-                {
-                    "id": "q1",
-                    "label": "How would you rate your overall experience?",
-                    "type": "text",
-                    "stars": true
-                },
-                {
-                    "id": "q2",
-                    "label": "What did you like most about the product?",
-                    "type": "text",
-                    "stars": false
-                },
-                {
-                    "id": "q3",
-                    "label": "How likely are you to recommend us?",
-                    "type": "select",
-                    "options": [
-                        "Very Likely",
-                        "Likely",
-                        "Neutral",
-                        "Unlikely",
-                        "Very Unlikely"
-                    ],
-                    "stars": true
-                }
-            ]
-        },
-        {
-            "id": "usability-test",
-            "name": "Usability Test",
-            "description": "Evaluate interface usability and user experience",
-            "questions": [
-                {
-                    "id": "q1",
-                    "label": "How easy was it to navigate the interface?",
-                    "type": "text",
-                    "stars": true
-                },
-                {
-                    "id": "q2",
-                    "label": "Did you encounter any difficulties?",
-                    "type": "text",
-                    "stars": false
-                },
-                {
-                    "id": "q3",
-                    "label": "How intuitive was the design?",
-                    "type": "select",
-                    "options": [
-                        "Very Intuitive",
-                        "Somewhat Intuitive",
-                        "Neutral",
-                        "Not Intuitive",
-                        "Confusing"
-                    ],
-                    "stars": true
-                },
-                {
-                    "id": "q4",
-                    "label": "On a scale of 1-10, how would you rate the performance?",
-                    "type": "number",
-                    "stars": false
-                }
-            ]
-        },
-        {
-            "id": "product-feedback",
-            "name": "Product Feedback",
-            "description": "Collect detailed product feedback",
-            "questions": [
-                {
-                    "id": "q1",
-                    "label": "Which feature did you use the most?",
-                    "type": "select",
-                    "options": [
-                        "Feature A",
-                        "Feature B",
-                        "Feature C",
-                        "Feature D"
-                    ],
-                    "stars": false
-                },
-                {
-                    "id": "q2",
-                    "label": "Rate the feature quality",
-                    "type": "text",
-                    "stars": true
-                },
-                {
-                    "id": "q3",
-                    "label": "What features would you like to see added?",
-                    "type": "text",
-                    "stars": false
-                },
-                {
-                    "id": "q4",
-                    "label": "How satisfied are you with the product?",
-                    "type": "text",
-                    "stars": true
-                }
-            ]
-        },
-        {
-            "id": "customer-service",
-            "name": "Customer Service Evaluation",
-            "description": "Evaluate customer service experience",
-            "questions": [
-                {
-                    "id": "q1",
-                    "label": "How would you rate the response time?",
-                    "type": "text",
-                    "stars": true
-                },
-                {
-                    "id": "q2",
-                    "label": "Was your issue resolved?",
-                    "type": "select",
-                    "options": [
-                        "Yes, completely",
-                        "Partially",
-                        "No"
-                    ],
-                    "stars": false
-                },
-                {
-                    "id": "q3",
-                    "label": "Rate the helpfulness of our team",
-                    "type": "text",
-                    "stars": true
-                },
-                {
-                    "id": "q4",
-                    "label": "Additional comments",
-                    "type": "text",
-                    "stars": false
-                }
-            ]
-        },
-        {
-            "id": "Test",
-            "name": "Test",
-            "description": "Test",
-            "questions": [
-                {
-                    "id": "q1",
-                    "label": "Test",
-                    "type": "text",
-                    "stars": true
-                }
-            ]
-        }
-    ]
+	"templates": [
+		{
+			"id": "driver-test-study-template",
+			"name": "Driver Test Study Session",
+			"description": "Track your progress studying for the driving theory test",
+			"questions": [
+				{
+					"id": "q1",
+					"label": "How do you feel about this session?",
+					"type": "text",
+					"stars": true,
+					"starType": "emoji",
+					"required": true
+				},
+				{
+					"id": "q2",
+					"label": "How confident do you feel about road signs and markings?",
+					"type": "text",
+					"stars": true,
+					"starType": "slider",
+					"required": true
+				},
+				{
+					"id": "q3",
+					"label": "How well do you understand right-of-way rules?",
+					"type": "text",
+					"stars": true,
+					"starType": "slider",
+					"required": true
+				},
+				{
+					"id": "q4",
+					"label": "How comfortable are you with speed limits and regulations?",
+					"type": "text",
+					"stars": true,
+					"starType": "slider",
+					"required": true
+				},
+				{
+					"id": "q5",
+					"label": "How confident are you with parking procedures?",
+					"type": "text",
+					"stars": true,
+					"starType": "slider",
+					"required": true
+				},
+				{
+					"id": "q6",
+					"label": "How well do you know emergency and hazard procedures?",
+					"type": "text",
+					"stars": true,
+					"starType": "slider",
+					"required": true
+				},
+				{
+					"id": "q7",
+					"label": "Topics to review next session",
+					"type": "text",
+					"stars": false,
+					"required": false,
+					"minLength": 10,
+					"maxLength": 500
+				},
+				{
+					"id": "q8",
+					"label": "Additional comments or feedback",
+					"type": "text",
+					"stars": false,
+					"required": false,
+					"minLength": 5,
+					"maxLength": 1000
+				}
+			]
+		}
+	]
 }

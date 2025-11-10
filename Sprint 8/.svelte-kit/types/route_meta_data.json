@@ -5,5 +5,7 @@
 		"src/routes/api/templates/+server.ts"
 	],
 	"/evaluation": [],
-	"/templates/create": []
+	"/results": [],
+	"/templates/create": [],
+	"/templates/view": []
 }
