@@ -2,138 +2,93 @@
     import EvaluationQuestionnaire, {
         type Question
     } from '$lib/components/EvaluationQuestionnaire.svelte';
-    import Popup from '$lib/components/Popup.svelte';
-    import { selectedTemplate } from '$lib/stores/templateStore';
+    import { sessionStore } from '$lib/stores/sessionStore';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
+    import type { ActiveSession } from '$lib/stores/sessionStore';
 
-    let showEndPopup = $state(false);
-    let feedbackResponses = $state({
-        intuitive: 3,
-        issues: 'No',
-        issueDetails: '',
-        likelihood: 3
-    });
-
-    console.log(selectedTemplate);
-    let template = $state($selectedTemplate);
+    let activeSession = $state<ActiveSession | null>(null);
+    let isSubmitting = $state(false);
+    let loadAttempts = 0;
 
     onMount(() => {
-        if (!$selectedTemplate) {
-            alert('Please select a template first');
-            goto('/');
-        }
+        const loadSession = () => {
+            const unsubscribe = sessionStore.activeSession.subscribe((session) => {
+                console.log('Active session loaded:', session);
+                activeSession = session;
+            });
+
+            setTimeout(() => {
+                if (!activeSession && loadAttempts < 3) {
+                    loadAttempts++;
+                    console.log('Retrying to load session, attempt:', loadAttempts);
+                    loadSession();
+                } else if (!activeSession) {
+                    console.error('No active session found after retries');
+                    alert('No active session found. Please start a session first.');
+                    goto('/');
+                }
+            }, 100);
+
+            return unsubscribe;
+        };
+
+        return loadSession();
     });
 
-    const onSubmit = (responses: Record<string, any>) => {
+    const onSubmit = async (responses: Record<string, any>) => {
+        if (isSubmitting) return;
+        if (!activeSession) {
+            alert('Session was lost. Please try again.');
+            goto('/');
+            return;
+        }
+        
+        isSubmitting = true;
         console.log('Questionnaire responses:', responses);
-        console.log('Template used:', $selectedTemplate?.name);
+        console.log('Current active session:', activeSession);
 
-        const existingQuestionnaires = localStorage.getItem('allQuestionnaires');
-        const allQuestionnaires = existingQuestionnaires ? JSON.parse(existingQuestionnaires) : [];
+        // End the session
+        sessionStore.endSession(responses);
 
-        allQuestionnaires.push({
-            sessionId: crypto.randomUUID(),
-            timestamp: new Date().toISOString(),
-            templateId: $selectedTemplate?.id,
-            templateName: $selectedTemplate?.name,
-            responses: responses
-        });
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-        localStorage.setItem('allQuestionnaires', JSON.stringify(allQuestionnaires));
-
-        showEndPopup = true;
+        // Navigate with graphs parameter
+        goto('/?showGraphs=true');
     };
-
-    function submitFeedback() {
-        console.log('Feedback submitted:', feedbackResponses);
-
-        const existingData = localStorage.getItem('allFeedback');
-        const allResponses = existingData ? JSON.parse(existingData) : [];
-
-        allResponses.push({
-            sessionId: crypto.randomUUID(),
-            timestamp: new Date().toISOString(),
-            templateId: $selectedTemplate?.id,
-            templateName: $selectedTemplate?.name,
-            feedback: feedbackResponses
-        });
-
-        localStorage.setItem('allFeedback', JSON.stringify(allResponses));
-
-        localStorage.removeItem('userFeedback');
-
-        showEndPopup = false;
-        alert('Thank you! Your feedback has been recorded.');
-        selectedTemplate.set(null);
-        goto('/');
-    }
 </script>
 
-{#if template}
+{#if activeSession}
     <div class="page-container">
         <div class="page-header">
-            <h1>{template.name}</h1>
-            <p class="template-description">{template.description}</p>
-        </div>
-
-        <EvaluationQuestionnaire template={template.questions} handleSubmit={onSubmit} />
-    </div>
-
-    <Popup bind:isOpen={showEndPopup} title="Thank You!" showCloseButton={false}>
-        <div class="feedback-form">
-            <p class="thank-you-text">
-                Thank you for taking the time to test our evaluation system! Please answer a few quick
-                questions about your experience.
+            <div class="session-badge">
+                <span class="badge-icon">⏱️</span>
+                Active Session
+            </div>
+            <h1>{activeSession.templateName}</h1>
+            <p class="session-info">
+                Started at {new Date(activeSession.startTime).toLocaleTimeString()}
             </p>
-
-            <div class="question">
-                <label for="intuitive"> How intuitive was the questionnaire interface? (1-5) </label>
-                <input
-                    type="range"
-                    id="intuitive"
-                    min="1"
-                    max="5"
-                    bind:value={feedbackResponses.intuitive}
-                />
-                <span class="rating-value">{feedbackResponses.intuitive}</span>
-            </div>
-
-            <div class="question">
-                <label for="issues"> Did you encounter any issues completing the evaluation? </label>
-                <select id="issues" class="input-field" bind:value={feedbackResponses.issues}>
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                </select>
-
-                {#if feedbackResponses.issues === 'Yes'}
-                    <textarea
-                        class="input-field"
-                        placeholder="Please describe the issues you encountered..."
-                        bind:value={feedbackResponses.issueDetails}
-                        rows="3"
-                    ></textarea>
-                {/if}
-            </div>
-
-            <div class="question">
-                <label for="likelihood"> How likely are you to use this system? (1-5) </label>
-                <input
-                    type="range"
-                    id="likelihood"
-                    min="1"
-                    max="5"
-                    bind:value={feedbackResponses.likelihood}
-                />
-                <span class="rating-value">{feedbackResponses.likelihood}</span>
-            </div>
-
-            <button class="btn-primary btn-full" onclick={submitFeedback}> Submit Feedback </button>
         </div>
-    </Popup>
+
+        <EvaluationQuestionnaire 
+            template={activeSession.questions} 
+            handleSubmit={onSubmit}
+        />
+
+        {#if isSubmitting}
+            <div class="submitting-overlay">
+                <div class="submitting-content">
+                    <div class="spinner"></div>
+                    <p>Submitting your responses...</p>
+                </div>
+            </div>
+        {/if}
+    </div>
 {:else}
     <div class="loading">
-        <p>Loading template...</p>
+        <div class="spinner"></div>
+        <p>Loading session...</p>
     </div>
 {/if}
 
@@ -142,6 +97,7 @@
         min-height: 100vh;
         background-color: var(--color-bg-primary);
         padding-bottom: 2rem;
+        position: relative;
     }
 
     .page-header {
@@ -151,55 +107,108 @@
         text-align: center;
     }
 
+    .session-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--color-accent);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .badge-icon {
+        font-size: 1.1rem;
+    }
+
     .page-header h1 {
         margin: 0 0 0.5rem 0;
         color: var(--color-text-primary);
         font-size: 2rem;
     }
 
-    .template-description {
+    .session-info {
         color: var(--color-text-secondary);
-        font-size: 1rem;
+        font-size: 0.95rem;
         margin: 0;
     }
 
     .loading {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         background-color: var(--color-bg-primary);
-        font-size: 1.25rem;
+        gap: 1rem;
+    }
+
+    .loading p {
+        font-size: 1.1rem;
         color: var(--color-text-secondary);
-    }
-
-    .feedback-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .thank-you-text {
         margin: 0;
-        line-height: 1.6;
-        color: var(--color-text-primary);
     }
 
-    .question {
+    .submitting-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .submitting-content {
+        background: var(--color-bg-primary);
+        padding: 2rem 3rem;
+        border-radius: 12px;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
-    .question label {
-        font-weight: 500;
+    .submitting-content p {
+        margin: 0;
         color: var(--color-text-primary);
+        font-size: 1.1rem;
+        font-weight: 500;
     }
 
-    .rating-value {
-        align-self: center;
-        font-weight: 600;
-        color: var(--color-accent);
-        font-size: 1.25rem;
+    .spinner {
+        border: 3px solid var(--color-bg-secondary);
+        border-top: 3px solid var(--color-accent);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .submitting-content {
+            padding: 1.5rem 2rem;
+            margin: 1rem;
+        }
     }
 </style>

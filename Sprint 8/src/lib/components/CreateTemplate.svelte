@@ -19,7 +19,8 @@
                 label: 'How do you feel about this session?',
                 type: 'text',
                 stars: true,
-                starType: 'stars'
+                starType: 'slider',
+                required: true
             }
         ]
     };
@@ -32,7 +33,8 @@
             id: `q${template.questions.length + 1}`,
             label: '',
             type: 'text',
-            stars: false
+            stars: false,
+            required: false
         };
         template.questions = [...template.questions, newQuestion];
     }
@@ -69,7 +71,7 @@
     function toggleStars(questionIndex: number) {
         const question = template.questions[questionIndex];
         if (question.stars && !question.starType) {
-            question.starType = 'stars'; // Default to stars type
+            question.starType = 'slider';
         }
         template.questions = template.questions;
     }
@@ -105,7 +107,8 @@
                             label: 'How do you feel about this session?',
                             type: 'text',
                             stars: true,
-                            starType: 'stars'
+                            starType: 'stars',
+                            required: true
                         }
                     ]
                 };
@@ -230,6 +233,72 @@
                     </div>
                 {/if}
 
+                <!-- Validation Section -->
+                <div class="validation-section">
+                    <h4>Validation Rules</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input 
+                                    type="checkbox" 
+                                    bind:checked={question.required}
+                                    disabled={i === 0}
+                                />
+                                Required {i === 0 ? '(always required)' : ''}
+                            </label>
+                        </div>
+                    </div>
+
+                    {#if question.type === 'text' && !question.stars}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Min Length</label>
+                                <input
+                                    type="number"
+                                    class="input-field"
+                                    bind:value={question.minLength}
+                                    placeholder="Minimum characters"
+                                    min="0"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label>Max Length</label>
+                                <input
+                                    type="number"
+                                    class="input-field"
+                                    bind:value={question.maxLength}
+                                    placeholder="Maximum characters"
+                                    min="0"
+                                />
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if question.type === 'number'}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Min Value</label>
+                                <input
+                                    type="number"
+                                    class="input-field"
+                                    bind:value={question.min}
+                                    placeholder="Minimum value"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label>Max Value</label>
+                                <input
+                                    type="number"
+                                    class="input-field"
+                                    bind:value={question.max}
+                                    placeholder="Maximum value"
+                                />
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+
                 {#if question.type === 'select'}
                     <div class="options-section">
                         <div class="section-header">
@@ -290,6 +359,12 @@
     .template-creator h3 {
         color: var(--color-text-primary);
         margin: 0;
+    }
+
+    .template-creator h4 {
+        color: var(--color-text-primary);
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
     }
 
     .form-group {
@@ -372,6 +447,14 @@
         border-radius: 12px;
         font-size: 0.75rem;
         font-weight: 700;
+    }
+
+    .validation-section {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px dashed var(--color-border);
     }
 
     .options-section {
