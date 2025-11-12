@@ -1,0 +1,171 @@
+{
+    "templates": [
+        {
+            "id": "driver-test-study-template",
+            "name": "Driver Test Study Session",
+            "description": "Track your progress studying for the driving theory test",
+            "questions": [
+                {
+                    "id": "q1",
+                    "label": "How do you feel about this session?",
+                    "type": "none",
+                    "stars": true,
+                    "starType": "emoji",
+                    "required": true
+                },
+                {
+                    "id": "q2",
+                    "label": "How confident do you feel about road signs and markings?",
+                    "type": "text",
+                    "stars": true,
+                    "starType": "slider",
+                    "required": true
+                },
+                {
+                    "id": "q3",
+                    "label": "How well do you understand right-of-way rules?",
+                    "type": "text",
+                    "stars": true,
+                    "starType": "slider",
+                    "required": true
+                },
+                {
+                    "id": "q4",
+                    "label": "How comfortable are you with speed limits and regulations?",
+                    "type": "text",
+                    "stars": true,
+                    "starType": "slider",
+                    "required": true
+                },
+                {
+                    "id": "q5",
+                    "label": "How confident are you with parking procedures?",
+                    "type": "text",
+                    "stars": true,
+                    "starType": "slider",
+                    "required": true
+                },
+                {
+                    "id": "q6",
+                    "label": "How well do you know emergency and hazard procedures?",
+                    "type": "text",
+                    "stars": true,
+                    "starType": "slider",
+                    "required": true
+                },
+                {
+                    "id": "q7",
+                    "label": "Topics to review next session",
+                    "type": "text",
+                    "stars": false,
+                    "required": false,
+                    "minLength": 10,
+                    "maxLength": 500
+                },
+                {
+                    "id": "q8",
+                    "label": "Additional comments or feedback",
+                    "type": "textarea",
+                    "stars": false,
+                    "required": false,
+                    "minLength": 5,
+                    "maxLength": 1000
+                }
+            ]
+        },
+        {
+            "id": "test-template",
+            "name": "Test Template",
+            "description": "This is a template",
+            "questions": [
+                {
+                    "id": "q1",
+                    "label": "How do you feel about this session?",
+                    "type": "none",
+                    "stars": true,
+                    "starType": "emoji",
+                    "required": true
+                },
+                {
+                    "id": "q2",
+                    "label": "Text Box",
+                    "type": "text",
+                    "stars": false,
+                    "required": false
+                },
+                {
+                    "id": "q3",
+                    "label": "Multiline text box",
+                    "type": "textarea",
+                    "stars": false,
+                    "required": false
+                },
+                {
+                    "id": "q4",
+                    "label": "Select Field",
+                    "type": "select",
+                    "stars": false,
+                    "required": false,
+                    "options": [
+                        "Option A",
+                        "Option B"
+                    ]
+                },
+                {
+                    "id": "q5",
+                    "label": "Number Field",
+                    "type": "number",
+                    "stars": false,
+                    "required": false
+                },
+                {
+                    "id": "q6",
+                    "label": "Rating Field Stars",
+                    "type": "none",
+                    "stars": true,
+                    "required": false,
+                    "starType": "stars"
+                },
+                {
+                    "id": "q7",
+                    "label": "Rating Field Slider",
+                    "type": "none",
+                    "stars": true,
+                    "required": false,
+                    "starType": "slider"
+                },
+                {
+                    "id": "q8",
+                    "label": "Rating Field Emoji",
+                    "type": "none",
+                    "stars": true,
+                    "required": false,
+                    "starType": "emoji"
+                },
+                {
+                    "id": "q9",
+                    "label": "Rating Field Numeric",
+                    "type": "none",
+                    "stars": true,
+                    "required": false,
+                    "starType": "numeric"
+                },
+                {
+                    "id": "q10",
+                    "label": "Text with rating",
+                    "type": "text",
+                    "stars": true,
+                    "required": false,
+                    "starType": "slider"
+                },
+                {
+                    "id": "q11",
+                    "label": "Additional comments",
+                    "type": "textarea",
+                    "stars": false,
+                    "required": true
+                }
+            ]
+        }
+    ]
+}
