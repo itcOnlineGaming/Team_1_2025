@@ -117,7 +117,7 @@
         height: 100%;
     }
 
-    .progress-ring {
+     .progress-ring {
         transition: stroke-dashoffset 1s linear;
     }
 

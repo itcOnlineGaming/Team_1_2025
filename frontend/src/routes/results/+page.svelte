@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import type { Session } from '$lib/stores/sessionStore';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
+    import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 	import { base } from '$app/paths';
 
     let sessions = $state<Session[]>([]);
@@ -80,7 +81,12 @@
 
 <div class="results-page">
     <div class="page-header">
-        <button class="btn-back" onclick={goBack}>← Back to Home</button>
+        <button class="btn-back" onclick={goBack}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home
+        </button>
         <h1>📊 Session Results</h1>
         <div class="header-actions">
             <button class="btn-info btn-sm" onclick={exportData}>
@@ -105,6 +111,8 @@
         </div>
     {/if}
 </div>
+
+<MobileBottomNav />
 
 <!-- Session Detail Modal -->
 {#if showDetailModal && selectedSession}
@@ -227,17 +235,27 @@
         background: var(--color-bg-secondary);
         color: var(--color-text-primary);
         border: 1px solid var(--color-border);
-        padding: 0.6rem 1rem;
-        border-radius: 4px;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 500;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-back svg {
+        width: 18px;
+        height: 18px;
     }
 
     .btn-back:hover {
-        background: var(--color-bg-primary);
-        border-color: var(--color-accent);
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+        transform: translateX(-2px);
     }
 
     .empty-state {
@@ -272,7 +290,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000;
+        z-index: 10000;
         padding: 1rem;
     }
 
@@ -411,11 +429,17 @@
     @media (max-width: 768px) {
         .results-page {
             padding: 1rem;
+            padding-bottom: 5rem; /* Add padding for bottom nav */
         }
 
         .page-header {
             flex-direction: column;
             align-items: flex-start;
+        }
+
+        .btn-back {
+            width: 100%;
+            justify-content: center;
         }
 
     }

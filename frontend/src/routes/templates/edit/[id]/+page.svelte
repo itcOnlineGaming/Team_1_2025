@@ -5,6 +5,7 @@
     import { base } from '$app/paths';
     import { selectedTemplate } from '$lib/stores/templateStore';
     import CreateTemplate from '$lib/components/CreateTemplate.svelte';
+    import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
     import type { Question } from '$lib/components/EvaluationQuestionnaire.svelte';
 
     interface Template {
@@ -61,6 +62,8 @@
 {:else if templateToEdit}
     <CreateTemplate initialTemplate={templateToEdit} isEditMode={true} />
 {/if}
+
+<MobileBottomNav />
 
 <style>
     .loading {

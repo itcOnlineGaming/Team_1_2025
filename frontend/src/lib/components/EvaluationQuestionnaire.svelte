@@ -447,6 +447,7 @@
         flex-direction: column;
         align-items: center;
         min-width: 80px;
+        flex: 1;
     }
 
     .emoji-button:hover {
@@ -490,5 +491,54 @@
     button:disabled {
         opacity: 0.6;
         cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+        .background {
+            padding: 1rem;
+            padding-bottom: 5rem;
+        }
+
+        .emoji-button {
+            min-width: 45px;
+            padding: 0.3rem 0.15rem;
+            border-radius: 4px;
+        }
+
+        .emoji-button span.text-4xl {
+            font-size: 1.25rem;
+        }
+
+        .emoji-button span.text-xs {
+            font-size: 0.55rem;
+        }
+
+        .numeric-button {
+            width: 45px;
+            height: 45px;
+            font-size: 1.1rem;
+        }
+
+        .slider-container {
+            padding: 0.75rem 0;
+        }
+
+        .rating-slider {
+            height: 6px;
+        }
+
+        .rating-slider::-webkit-slider-thumb {
+            width: 20px;
+            height: 20px;
+        }
+
+        .rating-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+        }
+
+        .flex.space-x-2 {
+            gap: 0.25rem;
+        }
     }
 </style>

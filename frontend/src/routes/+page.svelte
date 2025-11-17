@@ -3,14 +3,13 @@
     import TemplateSelector from '$lib/components/TemplateSelector.svelte';
     import SessionTimer from '$lib/components/SessionTimer.svelte';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
+    import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
     import { sessionStore } from '$lib/stores/sessionStore';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import templatesData from '$lib/data/templates.json';
     import type { Question } from '$lib/components/EvaluationQuestionnaire.svelte';
     import { base } from '$app/paths';
-
-
 
     interface Template {
         id: string;
@@ -19,10 +18,7 @@
         questions: Question[];
     }
 
-
-
     const templates = templatesData.templates as Template[];
-
 
     let welcomePage = $state(1);
     let showWelcomePopup = $state(false);  // Changed to false so it doesn't show on initial load
@@ -32,15 +28,11 @@
     let selectedTemplateData: Template | null = $state(null);
     let activeSession = $state<any>(null);
 
-
-
     onMount(() => {
         // Subscribe to active session changes
         const unsubscribe = sessionStore.activeSession.subscribe((session) => {
             activeSession = session;
         });
-
-
 
         // Check URL params for showGraphs
         const urlParams = new URLSearchParams(window.location.search);
@@ -50,24 +42,17 @@
             window.history.replaceState({}, '', '/');
         }
 
-
-
         return unsubscribe;
     });
-
-
 
     function handleStartSession() {
         showWelcomePopup = false;
         showTemplateSelector = true;
     }
 
-
     function openWelcomePopup() {
         showWelcomePopup = true;
     }
-
-
 
     function handleTemplateSelect(template: Template) {
         selectedTemplateData = template;
@@ -75,27 +60,19 @@
         showTemplateSelector = false;
     }
 
-
-
     function handleEndSession() {
         goto(`${base}/evaluation`);
     }
-
-
 
     function handleGraphsClose() {
         showGraphs = false;
         showEndTestPrompt = true;
     }
 
-
-
     function handleStartAnother() {
         showEndTestPrompt = false;
         showTemplateSelector = true;
     }
-
-
 
     function handleFinish() {
         showEndTestPrompt = false;
@@ -103,19 +80,31 @@
         goto(`${base}/results`);
     }
 
-
     function goToViewTemplates() {
         goto(`${base}/templates/view`);
     }
 </script>
 
-
-
 <main>
-    <div class="nav-buttons">
-        <button class="btn-info btn-sm" onclick={goToViewTemplates}>View Templates</button>
-        <button class="btn-info btn-sm" onclick={() => goto(`${base}/results`)}>📊 Results</button>
-    </div>
+    <!-- Desktop nav buttons -->
+    <nav class="nav-buttons desktop-only">
+        <button class="nav-btn" onclick={goToViewTemplates}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            View Templates
+        </button>
+        <button class="nav-btn" onclick={() => goto(`${base}/results`)}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"></path>
+                <path d="M18 17V9"></path>
+                <path d="M13 17V5"></path>
+                <path d="M8 17v-3"></path>
+            </svg>
+            Results
+        </button>
+    </nav>
     
     <div class="hero-content">
         {#if activeSession}
@@ -131,6 +120,8 @@
             </button>
         {/if}
     </div>
+    
+    <MobileBottomNav />
 </main>
 
 
@@ -344,10 +335,42 @@
 
     .nav-buttons {
         position: absolute;
-        top: 1rem;
-        right: 1rem;
+        top: 1.5rem;
+        right: 1.5rem;
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
+    }
+
+    .nav-btn {
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+        border: 1px solid var(--color-border);
+        padding: 0.65rem 1.25rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .nav-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .nav-btn:hover {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .desktop-only {
+        display: flex;
     }
 
 
@@ -432,7 +455,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000;
+        z-index: 10000;
         padding: 1rem;
     }
 
@@ -563,10 +586,8 @@
         }
 
 
-        .nav-buttons {
-            top: 0.5rem;
-            right: 0.5rem;
-            flex-direction: column;
+        .nav-buttons.desktop-only {
+            display: none;
         }
 
 
@@ -577,6 +598,7 @@
 
         main {
             padding: 1rem;
+            padding-bottom: 5rem; /* Add padding to account for bottom nav */
         }
     }
 </style>

@@ -105,8 +105,20 @@
 </div>
 
 {#if selectedPreview}
-    <div class="modal-overlay" onclick={closePreview}>
-        <div class="modal-content card" onclick={(e) => e.stopPropagation()}>
+    <div 
+        class="modal-overlay" 
+        role="presentation"
+        tabindex="-1"
+        onclick={closePreview}
+        onkeydown={(e) => e.key === 'Escape' && closePreview()}
+    >
+        <div 
+            class="modal-content card" 
+            role="dialog"
+            tabindex="0"
+            onclick={(e) => e.stopPropagation()}
+            onkeydown={(e) => e.stopPropagation()}
+        >
             <div class="modal-header">
                 <div>
                     <h2>{selectedPreview.name}</h2>
@@ -155,9 +167,11 @@
 
             <div class="modal-footer">
                 <button class="btn-secondary" onclick={closePreview}>Close</button>
-                <button class="btn-primary" onclick={() => selectTemplate(selectedPreview)}>
-                    Use This Template
-                </button>
+                {#if selectedPreview}
+                    <button class="btn-primary" onclick={() => selectTemplate(selectedPreview!)}>
+                        Use This Template
+                    </button>
+                {/if}
             </div>
         </div>
     </div>

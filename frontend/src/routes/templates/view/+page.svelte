@@ -5,6 +5,7 @@
     import templatesData from '$lib/data/templates.json';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
+    import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 
 
     interface Template {
@@ -148,7 +149,12 @@
 <div class="template-library">
     <div class="header">
         <div class="header-left">
-            <button class="btn-back" onclick={goBack} title="Go back">← Back</button>
+            <button class="btn-back" onclick={goBack} title="Go back">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back
+            </button>
             <h2>Template Library</h2>
         </div>
         <button class="btn-success" onclick={navigateToCreate}>+ Create Template</button>
@@ -173,7 +179,18 @@
     {:else}
         <div class="template-grid">
             {#each templates as template}
-                <div class="template-card card" onclick={() => openPreview(template)}>
+                <div 
+                    class="template-card card" 
+                    role="button"
+                    tabindex="0"
+                    onclick={() => openPreview(template)}
+                    onkeydown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            openPreview(template);
+                        }
+                    }}
+                >
                     <div class="card-header">
                         <h3>{template.name}</h3>
                         <span class="badge badge-info">{template.questions.length} Q</span>
@@ -229,7 +246,7 @@
 <!-- Preview Modal -->
 {#if selectedPreview}
     <div class="modal-overlay" role="presentation" onclick={closePreview} onkeydown={(e) => e.key === 'Escape' && closePreview()}>
-        <div class="modal-content card" role="dialog" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+        <div class="modal-content card" role="dialog" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
             <div class="modal-header">
                 <div>
                     <h2>{selectedPreview.name}</h2>
@@ -298,7 +315,7 @@
 <!-- Delete Confirmation Modal -->
 {#if deleteConfirmModal}
     <div class="modal-overlay" role="presentation" onclick={closeDeleteConfirm} onkeydown={(e) => e.key === 'Escape' && closeDeleteConfirm()}>
-        <div class="modal-content card delete-modal" role="alertdialog" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+        <div class="modal-content card delete-modal" role="alertdialog" tabindex="0" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
             <div class="modal-header">
                 <h2>Delete Template</h2>
                 <button class="btn-close" onclick={closeDeleteConfirm} type="button">✕</button>
@@ -332,6 +349,7 @@
     </div>
 {/if}
 
+<MobileBottomNav />
 
 <style>
     .template-library {
@@ -395,18 +413,27 @@
         background: var(--color-bg-secondary);
         color: var(--color-text-primary);
         border: 1px solid var(--color-border);
-        padding: 0.6rem 1rem;
-        border-radius: 4px;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
         cursor: pointer;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         font-weight: 500;
         transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
+    .btn-back svg {
+        width: 18px;
+        height: 18px;
+    }
 
     .btn-back:hover {
-        background: var(--color-bg-primary);
-        border-color: var(--color-accent);
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+        transform: translateX(-2px);
     }
 
 
@@ -610,7 +637,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000;
+        z-index: 10000;
         padding: 1rem;
     }
 
@@ -838,6 +865,26 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 1rem;
+        }
+
+        .header-left {
+            width: 100%;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-back {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-success {
+            width: 100%;
+        }
+
+        .template-library {
+            padding: 1rem;
+            padding-bottom: 5rem; /* Add padding for bottom nav */
         }
 
 

@@ -208,15 +208,26 @@
 }
 
 
-    // Helper function to check if a question is a default locked question
     function isDefaultQuestion(index: number): boolean {
         return index === 0 || index === template.questions.length - 1;
+    }
+
+    function goBack() {
+        goto(`${base}/templates/view`);
     }
 </script>
 
 <div class="template-creator">
     <div class="header-section">
-        <h2>{isEditMode ? 'Edit Template' : 'Create New Template'}</h2>
+        <div class="header-left">
+            <button type="button" onclick={goBack} class="btn-back">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Templates
+            </button>
+            <h2>{isEditMode ? 'Edit Template' : 'Create New Template'}</h2>
+        </div>
         <button type="button" onclick={openPreview} class="btn-info">
             Preview Template
         </button>
@@ -541,6 +552,39 @@
         gap: 1rem;
     }
 
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .btn-back {
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+        border: 1px solid var(--color-border);
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-back svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-back:hover {
+        background: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+        transform: translateX(-2px);
+    }
+
     .template-creator h2 {
         color: var(--color-text-primary);
         margin: 0;
@@ -703,7 +747,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000;
+        z-index: 10000;
         padding: 1rem;
     }
 
@@ -795,11 +839,51 @@
     @media (max-width: 768px) {
         .template-creator {
             padding: 1rem;
+            padding-bottom: 5rem; /* Add padding for bottom nav */
         }
 
         .header-section {
             flex-direction: column;
             align-items: flex-start;
+        }
+
+        .header-left {
+            width: 100%;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .btn-back {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .question-card {
+            padding: 1rem;
+        }
+
+        .question-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .option-row {
+            flex-wrap: wrap;
+        }
+
+        .validation-section {
+            padding: 1rem;
+        }
+
+        .options-section {
+            padding: 1rem;
         }
 
         .modal-content {

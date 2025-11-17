@@ -6,6 +6,7 @@
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import type { ActiveSession } from '$lib/stores/sessionStore';
+    import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 	import { base } from '$app/paths';
 
     let activeSession = $state<ActiveSession | null>(null);
@@ -57,10 +58,23 @@
         // Navigate with graphs parameter
         goto(`${base}/?showGraphs=true`);
     };
+
+    function goBack() {
+        if (confirm('Are you sure you want to cancel this evaluation? Your session will be lost.')) {
+            sessionStore.cancelSession();
+            goto(`${base}/`);
+        }
+    }
 </script>
 
 {#if activeSession}
     <div class="page-container">
+        <button class="btn-back" onclick={goBack}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Cancel
+        </button>
         <div class="page-header">
             <div class="session-badge">
                 <span class="badge-icon">⏱️</span>
@@ -93,12 +107,45 @@
     </div>
 {/if}
 
+<MobileBottomNav />
+
 <style>
     .page-container {
         min-height: 100vh;
         background-color: var(--color-bg-primary);
         padding-bottom: 2rem;
         position: relative;
+    }
+
+    .btn-back {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+        border: 1px solid var(--color-border);
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        z-index: 10;
+    }
+
+    .btn-back svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-back:hover {
+        background: var(--color-danger);
+        color: white;
+        border-color: var(--color-danger);
+        transform: translateX(-2px);
     }
 
     .page-header {
@@ -163,7 +210,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 9999;
+        z-index: 10001;
     }
 
     .submitting-content {
@@ -203,6 +250,21 @@
     }
 
     @media (max-width: 768px) {
+        .page-container {
+            padding-bottom: 6rem; /* Add padding for bottom nav */
+        }
+
+        .btn-back {
+            position: static;
+            width: calc(100% - 2rem);
+            margin: 1rem;
+            justify-content: center;
+        }
+
+        .page-header {
+            padding-top: 1rem;
+        }
+
         .page-header h1 {
             font-size: 1.5rem;
         }
