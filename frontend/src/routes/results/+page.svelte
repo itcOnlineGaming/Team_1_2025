@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import type { Session } from '$lib/stores/sessionStore';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
+    import SessionDetail from '$lib/components/SessionDetail.svelte';
     import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 	import { base } from '$app/paths';
 
@@ -13,11 +14,27 @@
     let showDetailModal = $state(false);
 
     onMount(() => {
+        // Force load from localStorage
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('sessions');
+            console.log('LocalStorage sessions:', stored);
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    console.log('Parsed sessions:', parsed);
+                } catch (e) {
+                    console.error('Error parsing:', e);
+                }
+            }
+        }
+
         const unsubscribeSessions = sessionStore.sessions.subscribe((s) => {
+            console.log('Sessions from store:', s);
             sessions = s;
         });
 
         const unsubscribeStats = sessionStats.subscribe((s) => {
+            console.log('Stats from store:', s);
             stats = s;
         });
 
@@ -98,8 +115,24 @@
         </div>
     </div>
 
-        {#if stats}
-        <SessionGraphs showTable={true} onViewDetails={viewSessionDetail} />
+    {#if stats}
+        <SessionGraphs showTable={false} onViewDetails={viewSessionDetail} />
+        
+        <!-- Sessions Detail List -->
+        <div class="sessions-section">
+            <h2>All Sessions</h2>
+            {#if sessions.length > 0}
+                <div class="sessions-grid">
+                    {#each sessions.slice().reverse() as session (session.id)}
+                        <SessionDetail {session} />
+                    {/each}
+                </div>
+            {:else}
+                <div class="no-sessions">
+                    <p>No sessions found.</p>
+                </div>
+            {/if}
+        </div>
     {:else}
         <div class="empty-state card">
             <div class="empty-icon">📭</div>
@@ -113,94 +146,6 @@
 </div>
 
 <MobileBottomNav />
-
-<!-- Session Detail Modal -->
-{#if showDetailModal && selectedSession}
-    <div class="modal-overlay" role="dialog" tabindex="-1" onclick={closeDetailModal} onkeydown={(e) => e.key === 'Escape' && closeDetailModal()}>
-            <div 
-            class="modal-content card" 
-            role="dialog"
-            tabindex="0"
-            onclick={(e) => e.stopPropagation()}
-            onkeydown={(e) => e.stopPropagation()}
-        >
-            <div class="modal-header">
-                <div>
-                    <h2>Session Details</h2>
-                    <p class="modal-subtitle">{selectedSession.templateName}</p>
-                </div>
-                <button class="btn-close" onclick={closeDetailModal}>✕</button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="detail-section">
-                    <h3>Session Information</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <span class="detail-label">Session ID:</span>
-                            <span class="detail-value">{selectedSession.id}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Template:</span>
-                            <span class="detail-value">{selectedSession.templateName}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Start Time:</span>
-                            <span class="detail-value">{formatDate(selectedSession.startTime)}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">End Time:</span>
-                            <span class="detail-value">{selectedSession.endTime ? formatDate(selectedSession.endTime) : 'N/A'}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Duration:</span>
-                            <span class="detail-value">{formatDuration(selectedSession.duration)}</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Overall Rating:</span>
-                            <span class="detail-value">
-                                {#if selectedSession.overallRating}
-                                    {selectedSession.overallRating}/5 {'⭐'.repeat(selectedSession.overallRating)}
-                                {:else}
-                                    N/A
-                                {/if}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>Responses</h3>
-                    <div class="responses-list">
-                        {#each Object.entries(selectedSession.responses) as [questionId, response]}
-                            <div class="response-item card">
-                                <div class="response-header">
-                                    <span class="question-id">{questionId}</span>
-                                </div>
-                                <div class="response-content">
-                                    {#if response.answer}
-                                        <div class="response-field">
-                                            <strong>Answer:</strong> {response.answer}
-                                        </div>
-                                    {/if}
-                                    {#if response.rating !== undefined}
-                                        <div class="response-field">
-                                            <strong>Rating:</strong> {response.rating}/5 {'⭐'.repeat(response.rating)}
-                                        </div>
-                                    {/if}
-                                </div>
-                            </div>
-                        {/each}
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick={closeDetailModal}>Close</button>
-            </div>
-        </div>
-    </div>
-{/if}
 
 <style>
     .results-page {

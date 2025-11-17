@@ -1,7 +1,4 @@
 <script lang="ts">
-    import EvaluationQuestionnaire, {
-        type Question
-    } from '$lib/components/EvaluationQuestionnaire.svelte';
     import Popup from '$lib/components/Popup.svelte';
     import { sessionStore } from '$lib/stores/sessionStore';
     import { goto } from '$app/navigation';
@@ -9,6 +6,28 @@
     import type { ActiveSession } from '$lib/stores/sessionStore';
     import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
 	import { base } from '$app/paths';
+
+    interface EvaluationQuestion {
+        id: string;
+        text: string;
+        type: 'text' | 'rating' | 'textarea';
+        response?: string;
+        rating?: number;
+    }
+
+    // Predefined question templates that users can add
+    const questionTemplates = [
+        { text: 'How productive did you feel during this session?', type: 'rating' as const },
+        { text: 'What went well during this session?', type: 'textarea' as const },
+        { text: 'What challenges did you face?', type: 'textarea' as const },
+        { text: 'What could be improved?', type: 'textarea' as const },
+        { text: 'How focused were you? (1-5)', type: 'rating' as const },
+        { text: 'What did you accomplish?', type: 'textarea' as const },
+        { text: 'How satisfied are you with your progress?', type: 'rating' as const },
+        { text: 'Any distractions?', type: 'text' as const },
+        { text: 'Energy level? (1-5)', type: 'rating' as const },
+        { text: 'Notes for next session', type: 'textarea' as const }
+    ];
 
     let activeSession = $state<ActiveSession | null>(null);
     let isSubmitting = $state(false);
@@ -28,6 +47,12 @@
         favoriteFeature: '',
         leastFavorite: ''
     });
+
+    // Dynamic questions state
+    let questions = $state<EvaluationQuestion[]>([]);
+    let selectedQuestionIndex = $state<number | null>(null);
+    let customQuestionText = $state('');
+    let customQuestionType = $state<'text' | 'rating' | 'textarea'>('text');
 
     onMount(() => {
         const loadSession = () => {
@@ -54,7 +79,55 @@
         return loadSession();
     });
 
-    const onSubmit = async (responses: Record<string, any>) => {
+    function addPredefinedQuestion() {
+        if (selectedQuestionIndex !== null) {
+            const template = questionTemplates[selectedQuestionIndex];
+            const newQuestion: EvaluationQuestion = {
+                id: `q-${Date.now()}-${Math.random()}`,
+                text: template.text,
+                type: template.type,
+                response: '',
+                rating: template.type === 'rating' ? 0 : undefined
+            };
+            questions = [...questions, newQuestion];
+            selectedQuestionIndex = null;
+        }
+    }
+
+    function addCustomQuestion() {
+        if (customQuestionText.trim()) {
+            const newQuestion: EvaluationQuestion = {
+                id: `q-${Date.now()}-${Math.random()}`,
+                text: customQuestionText.trim(),
+                type: customQuestionType,
+                response: '',
+                rating: customQuestionType === 'rating' ? 0 : undefined
+            };
+            questions = [...questions, newQuestion];
+            customQuestionText = '';
+            customQuestionType = 'text';
+        }
+    }
+
+    function removeQuestion(id: string) {
+        questions = questions.filter(q => q.id !== id);
+    }
+
+    function updateResponse(id: string, value: string) {
+        questions = questions.map(q => 
+            q.id === id ? { ...q, response: value } : q
+        );
+    }
+
+    function updateRating(id: string, value: number) {
+        questions = questions.map(q => 
+            q.id === id ? { ...q, rating: value } : q
+        );
+    }
+
+    const onSubmit = async (e: Event) => {
+        e.preventDefault();
+        
         if (isSubmitting) return;
         if (!activeSession) {
             alert('Session was lost. Please try again.');
@@ -63,7 +136,18 @@
         }
         
         isSubmitting = true;
-        console.log('Questionnaire responses:', responses);
+        
+        // Convert questions to response format
+        const responses: Record<string, any> = {};
+        questions.forEach(q => {
+            if (q.type === 'rating') {
+                responses[q.id] = { question: q.text, rating: q.rating || 0 };
+            } else {
+                responses[q.id] = { question: q.text, answer: q.response || '' };
+            }
+        });
+
+        console.log('Evaluation responses:', responses);
         console.log('Current active session:', activeSession);
 
         // End the session
@@ -106,16 +190,145 @@
                 <span class="badge-icon">⏱️</span>
                 Active Session
             </div>
-            <h1>{activeSession.templateName}</h1>
+            <h1>Session Evaluation</h1>
             <p class="session-info">
                 Started at {new Date(activeSession.startTime).toLocaleTimeString()}
             </p>
         </div>
 
-        <EvaluationQuestionnaire 
-            template={activeSession.questions} 
-            handleSubmit={onSubmit}
-        />
+        <form onsubmit={onSubmit} class="evaluation-form">
+            <!-- Add Questions Section -->
+            <div class="add-questions-section">
+                <h2>Add Evaluation Questions</h2>
+                <p class="instruction-text">Add as many or as few questions as you'd like for this evaluation.</p>
+                
+                <!-- Predefined Questions Dropdown -->
+                <div class="question-adder">
+                    <div class="dropdown-container">
+                        <select 
+                            bind:value={selectedQuestionIndex}
+                            onchange={addPredefinedQuestion}
+                            class="question-select"
+                        >
+                            <option value={null}>+ Select a question to add...</option>
+                            {#each questionTemplates as template, i}
+                                <option value={i}>
+                                    {template.text} ({template.type === 'rating' ? 'Rating' : template.type === 'textarea' ? 'Long text' : 'Short text'})
+                                </option>
+                            {/each}
+                        </select>
+                    </div>
+
+                    <!-- Custom Question Input -->
+                    <div class="custom-question">
+                        <div class="or-divider">
+                            <span>OR</span>
+                        </div>
+                        <h3>Add a Custom Question</h3>
+                        <div class="custom-inputs">
+                            <input 
+                                type="text"
+                                bind:value={customQuestionText}
+                                placeholder="Enter your custom question..."
+                                class="custom-input"
+                            />
+                            <div class="type-selector">
+                                <label>
+                                    <input type="radio" bind:group={customQuestionType} value="text" />
+                                    Short Text
+                                </label>
+                                <label>
+                                    <input type="radio" bind:group={customQuestionType} value="textarea" />
+                                    Long Text
+                                </label>
+                                <label>
+                                    <input type="radio" bind:group={customQuestionType} value="rating" />
+                                    Rating (1-5)
+                                </label>
+                            </div>
+                            <button 
+                                type="button"
+                                onclick={addCustomQuestion}
+                                class="btn-add-custom"
+                                disabled={!customQuestionText.trim()}
+                            >
+                                + Add Custom Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions List -->
+            {#if questions.length > 0}
+                <div class="questions-list">
+                    <h2>Your Evaluation ({questions.length} question{questions.length !== 1 ? 's' : ''})</h2>
+                    {#each questions as question, index (question.id)}
+                        <div class="question-card">
+                            <div class="question-header">
+                                <span class="question-number">Question {index + 1}</span>
+                                <button 
+                                    type="button"
+                                    onclick={() => removeQuestion(question.id)}
+                                    class="btn-remove"
+                                    aria-label="Remove question"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <div class="question-label">{question.text}</div>
+                            
+                            {#if question.type === 'rating'}
+                                <div class="rating-input">
+                                    <div class="stars">
+                                        {#each Array(5) as _, i}
+                                            <button
+                                                type="button"
+                                                class="star"
+                                                class:filled={i < (question.rating || 0)}
+                                                onclick={() => updateRating(question.id, i + 1)}
+                                                aria-label={`Rate ${i + 1} out of 5`}
+                                            >
+                                                {i < (question.rating || 0) ? '★' : '☆'}
+                                            </button>
+                                        {/each}
+                                    </div>
+                                    <span class="rating-value">
+                                        {question.rating || 0}/5
+                                    </span>
+                                </div>
+                            {:else if question.type === 'textarea'}
+                                <textarea
+                                    bind:value={question.response}
+                                    oninput={(e) => updateResponse(question.id, (e.target as HTMLTextAreaElement).value)}
+                                    placeholder="Your answer..."
+                                    rows="4"
+                                    class="response-textarea"
+                                ></textarea>
+                            {:else}
+                                <input
+                                    type="text"
+                                    bind:value={question.response}
+                                    oninput={(e) => updateResponse(question.id, (e.target as HTMLInputElement).value)}
+                                    placeholder="Your answer..."
+                                    class="response-input"
+                                />
+                            {/if}
+                        </div>
+                    {/each}
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="btn-submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Submitting...' : 'Complete Evaluation'}
+                    </button>
+                </div>
+            {:else}
+                <div class="empty-state">
+                    <p>No questions added yet. Add at least one question to complete your evaluation.</p>
+                </div>
+            {/if}
+        </form>
 
         {#if isSubmitting}
             <div class="submitting-overlay">
@@ -358,7 +571,7 @@
     .page-container {
         min-height: 100vh;
         background-color: var(--color-bg-primary);
-        padding-bottom: 2rem;
+        padding-bottom: 6rem;
         position: relative;
     }
 
@@ -429,6 +642,329 @@
         margin: 0;
     }
 
+    .evaluation-form {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .add-questions-section {
+        background: var(--color-bg-secondary);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 2px dashed var(--color-border);
+    }
+
+    .add-questions-section h2 {
+        margin: 0 0 0.5rem 0;
+        color: var(--color-text-primary);
+        font-size: 1.4rem;
+    }
+
+    .instruction-text {
+        color: var(--color-text-secondary);
+        margin: 0 0 1.5rem 0;
+        font-size: 0.95rem;
+    }
+
+    .question-adder {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .dropdown-container {
+        width: 100%;
+    }
+
+    .question-select {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid var(--color-border);
+        border-radius: 8px;
+        background: var(--color-bg-primary);
+        color: var(--color-text-primary);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .question-select:hover {
+        border-color: var(--color-accent);
+    }
+
+    .question-select:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .or-divider {
+        text-align: center;
+        margin: 1rem 0;
+        position: relative;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 45%;
+        height: 1px;
+        background: var(--color-border);
+    }
+
+    .or-divider::before {
+        left: 0;
+    }
+
+    .or-divider::after {
+        right: 0;
+    }
+
+    .or-divider span {
+        background: var(--color-bg-secondary);
+        padding: 0 1rem;
+        color: var(--color-text-secondary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .custom-question h3 {
+        margin: 0 0 1rem 0;
+        color: var(--color-text-primary);
+        font-size: 1.1rem;
+    }
+
+    .custom-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .custom-input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid var(--color-border);
+        border-radius: 8px;
+        background: var(--color-bg-primary);
+        color: var(--color-text-primary);
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .custom-input:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .type-selector {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .type-selector label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text-primary);
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .type-selector input[type="radio"] {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-add-custom {
+        padding: 0.8rem 1.5rem;
+        background: var(--color-accent);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-add-custom:hover:not(:disabled) {
+        background: var(--color-accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-add-custom:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .questions-list {
+        margin-bottom: 2rem;
+    }
+
+    .questions-list h2 {
+        margin: 0 0 1rem 0;
+        color: var(--color-text-primary);
+        font-size: 1.4rem;
+    }
+
+    .question-card {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+
+    .question-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+    }
+
+    .question-number {
+        color: var(--color-accent);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .btn-remove {
+        background: transparent;
+        color: var(--color-danger);
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .btn-remove:hover {
+        background: var(--color-danger);
+        color: white;
+    }
+
+    .question-label {
+        display: block;
+        color: var(--color-text-primary);
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin-bottom: 1rem;
+    }
+
+    .rating-input {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stars {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .star {
+        background: transparent;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--color-text-secondary);
+        padding: 0;
+    }
+
+    .star.filled {
+        color: #FFD700;
+    }
+
+    .star:hover {
+        transform: scale(1.2);
+    }
+
+    .rating-value {
+        color: var(--color-text-primary);
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .response-input,
+    .response-textarea {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid var(--color-border);
+        border-radius: 8px;
+        background: var(--color-bg-primary);
+        color: var(--color-text-primary);
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+
+    .response-input:focus,
+    .response-textarea:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .response-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--color-text-secondary);
+        font-size: 1.05rem;
+    }
+
+    .submit-section {
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    .btn-submit {
+        padding: 1rem 3rem;
+        background: var(--color-success);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        background: #10b981;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
     .loading {
         display: flex;
         flex-direction: column;
@@ -444,7 +980,6 @@
         color: var(--color-text-secondary);
         margin: 0;
     }
-
     .submitting-overlay {
         position: fixed;
         top: 0;

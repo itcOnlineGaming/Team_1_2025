@@ -32,7 +32,7 @@
 <div class="session-timer-container">
     <div class="session-info">
         <h3>Active Session</h3>
-        <p class="template-name">{session.templateName}</p>
+        <p class="template-name">Work Session</p>
     </div>
 
     <div class="timer-wrapper">
@@ -75,8 +75,8 @@
             Started: {new Date(session.startTime).toLocaleTimeString()}
         </p>
         <p class="detail-item">
-            <span class="detail-icon">📋</span>
-            {session.questions.length} questions to answer at the end of the session
+            <span class="detail-icon">�</span>
+            You'll add your own questions at the end of this session
         </p>
     </div>
 </div>

@@ -1,31 +1,17 @@
 <script lang="ts">
     import Popup from '$lib/components/Popup.svelte';
-    import TemplateSelector from '$lib/components/TemplateSelector.svelte';
     import SessionTimer from '$lib/components/SessionTimer.svelte';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
     import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
     import { sessionStore } from '$lib/stores/sessionStore';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
-    import templatesData from '$lib/data/templates.json';
-    import type { Question } from '$lib/components/EvaluationQuestionnaire.svelte';
     import { base } from '$app/paths';
-
-    interface Template {
-        id: string;
-        name: string;
-        description: string;
-        questions: Question[];
-    }
-
-    const templates = templatesData.templates as Template[];
 
     let welcomePage = $state(1);
     let showWelcomePopup = $state(false);  // Changed to false so it doesn't show on initial load
-    let showTemplateSelector = $state(false);
     let showGraphs = $state(false);
     let showEndTestPrompt = $state(false);
-    let selectedTemplateData: Template | null = $state(null);
     let activeSession = $state<any>(null);
 
     onMount(() => {
@@ -47,17 +33,16 @@
 
     function handleStartSession() {
         showWelcomePopup = false;
-        showTemplateSelector = true;
+        // Start session directly without any template
+        sessionStore.startSession({
+            id: 'direct',
+            name: 'Work Session',
+            questions: [] // Questions will be added during evaluation
+        });
     }
 
     function openWelcomePopup() {
         showWelcomePopup = true;
-    }
-
-    function handleTemplateSelect(template: Template) {
-        selectedTemplateData = template;
-        sessionStore.startSession(template);
-        showTemplateSelector = false;
     }
 
     function handleEndSession() {
@@ -71,7 +56,12 @@
 
     function handleStartAnother() {
         showEndTestPrompt = false;
-        showTemplateSelector = true;
+        // Start directly without any template
+        sessionStore.startSession({
+            id: 'direct',
+            name: 'Work Session',
+            questions: []
+        });
     }
 
     function handleFinish() {
@@ -112,7 +102,7 @@
                 session={activeSession} 
                 onEnd={handleEndSession}
             />
-        {:else if !showTemplateSelector && !showGraphs && !showEndTestPrompt}
+        {:else if !showGraphs && !showEndTestPrompt}
             <h1>Session Tracker</h1>
             <p class="subtitle">Track your work sessions and provide feedback</p>
             <button class="btn-primary btn-large start-session-btn" onclick={openWelcomePopup}>
@@ -167,15 +157,16 @@
             <h2><strong>How It Works</strong></h2>
             
             <ol class="instructions-list">
-                <li><strong>Start a new session</strong> and select a template (in this case, you might create or select a "Driver's Test Study" template)</li>
+                <li><strong>Start a new session</strong> - click the button and the timer begins immediately</li>
                 <li><strong>Study for your driver's test</strong> - the timer will track your session in the background while you focus on learning road signs, rules, and regulations</li>
                 <li><strong>Come back and end the session</strong> when you finish your study block or need to take a break</li>
-                <li><strong>Complete a brief evaluation questionnaire</strong> - this is crucial for our research! Tell us about your focus level, distractions you faced, what topics you covered, and how productive you felt</li>
+                <li><strong>Add evaluation questions</strong> - choose from a dropdown or create your own custom questions about your session</li>
+                <li><strong>Answer your questions</strong> - this is crucial for our research! Tell us about your focus level, distractions you faced, what topics you covered, and how productive you felt</li>
                 <li><strong>View your session analytics</strong> to see your study patterns over time and track your progress toward your test date</li>
             </ol>
             
             <h3><strong>Time Required</strong></h3>
-            <p><strong>1-2 minutes</strong> for the evaluation questionnaire after each session. Your actual study session can be as long or short as you need - we recommend 25-45 minutes for a focused study block.</p>
+            <p><strong>1-2 minutes</strong> for adding questions and answering them after each session. Your actual study session can be as long or short as you need - we recommend 25-45 minutes for a focused study block.</p>
             
             <div class="pagination-info">Page 3 of 4</div>
             
@@ -210,36 +201,12 @@
                     ← Back
                 </button>
                 <button class="btn-primary btn-large" onclick={handleStartSession}>
-                    🎯 Start Your First Study Session
+                    🎯 Start Your First Session
                 </button>
             </div>
         {/if}
     </div>
 </Popup>
-
-
-
-<!-- Template Selection Popup -->
-{#if showTemplateSelector}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div class="modal-overlay" role="presentation" tabindex="-1" onclick={() => showTemplateSelector = false} onkeydown={(e) => e.key === 'Escape' && (showTemplateSelector = false)}>
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <div class="modal-content card" role="dialog" aria-modal="true" tabindex="-1" onclick={(e) => e.stopPropagation()}>
-            <div class="modal-header">
-                <h2>Select a Template</h2>
-                <button class="btn-close" onclick={() => showTemplateSelector = false}>✕</button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-description">Choose a template for your session evaluation:</p>
-                <TemplateSelector 
-                    {templates}
-                    selectedId={selectedTemplateData?.id || ''}
-                    onSelect={handleTemplateSelect}
-                />
-            </div>
-        </div>
-    </div>
-{/if}
 
 
 
@@ -490,14 +457,6 @@
         color: var(--color-text-primary);
         font-size: 1.5rem;
     }
-
-
-    .modal-description {
-        margin: 0 0 1rem 0;
-        color: var(--color-text-secondary);
-        font-size: 0.95rem;
-    }
-
 
     .btn-close {
         background: none;

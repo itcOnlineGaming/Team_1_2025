@@ -12,7 +12,15 @@
 
     let chartData = $derived($sessionStats ? {
         labels: $sessionStats.sessions.map((s, i) => `Session ${i + 1}`),
-        ratings: $sessionStats.sessions.map(s => s.overallRating || 0),
+        ratings: $sessionStats.sessions.map(s => {
+            // Calculate average rating from all questions in this session
+            const ratings = Object.values(s.responses)
+                .filter(r => r.rating !== undefined && r.rating > 0)
+                .map(r => r.rating!);
+            return ratings.length > 0 
+                ? ratings.reduce((a, b) => a + b, 0) / ratings.length 
+                : 0;
+        }),
         durations: $sessionStats.sessions.map(s => Math.round(s.duration / 60))
     } : {
         labels: [],
@@ -60,6 +68,10 @@
             <div class="stat-card">
                 <div class="stat-value">{$sessionStats.totalSessions}</div>
                 <div class="stat-label">Total Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{$sessionStats.totalQuestions || 0}</div>
+                <div class="stat-label">Questions Answered</div>
             </div>
             <div class="stat-card">
                 <div class="stat-value">{$sessionStats.averageRating.toFixed(1)}/5</div>
@@ -197,10 +209,10 @@
                     <thead>
                         <tr>
                             <th>Session</th>
-                            <th>Template</th>
                             <th>Date</th>
                             <th>Duration</th>
-                            <th>Rating</th>
+                            <th>Questions</th>
+                            <th>Avg Rating</th>
                             {#if onViewDetails}
                                 <th>Actions</th>
                             {/if}
@@ -208,18 +220,29 @@
                     </thead>
                     <tbody>
                         {#each $sessionStats.sessions.slice().reverse() as session, i}
+                            {@const responseCount = Object.keys(session.responses).length}
+                            {@const ratings = Object.values(session.responses)
+                                .filter(r => r.rating !== undefined && r.rating > 0)
+                                .map(r => r.rating!)}
+                            {@const avgRating = ratings.length > 0 
+                                ? ((ratings.reduce((a, b) => (a || 0) + (b || 0), 0)) / ratings.length).toFixed(1)
+                                : null}
                             <tr>
                                 <td>#{$sessionStats.sessions.length - i}</td>
-                                <td>{session.templateName}</td>
                                 <td>{new Date(session.startTime).toLocaleString()}</td>
                                 <td>{formatDuration(session.duration)}</td>
                                 <td>
-                                    {#if session.overallRating}
+                                    <span class="question-count">
+                                        {responseCount} question{responseCount !== 1 ? 's' : ''}
+                                    </span>
+                                </td>
+                                <td>
+                                    {#if avgRating}
                                         <span class="rating-display">
-                                            {session.overallRating}/5 {'⭐'.repeat(session.overallRating)}
+                                            {avgRating}/5 {'⭐'.repeat(Math.round(parseFloat(avgRating)))}
                                         </span>
                                     {:else}
-                                        <span class="no-rating">N/A</span>
+                                        <span class="no-rating">No ratings</span>
                                     {/if}
                                 </td>
                                 {#if onViewDetails}
@@ -360,6 +383,15 @@
     .rating-display {
         font-weight: 500;
         color: var(--color-accent);
+    }
+
+    .question-count {
+        font-weight: 500;
+        color: var(--color-info);
+        background: rgba(143, 168, 196, 0.1);
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
     }
 
     .no-rating {
