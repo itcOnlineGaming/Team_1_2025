@@ -17,6 +17,18 @@
 <nav class="mobile-bottom-nav">
     <button 
         class="nav-item" 
+        class:active={isActive(`${base}/store`)}
+        onclick={() => goto(`${base}/store`)}
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span>Store</span>
+    </button>
+    <button 
+        class="nav-item" 
         class:active={isActive(`${base}/`) && currentPath === `${base}/`}
         onclick={() => goto(`${base}/`)}
     >
@@ -25,17 +37,6 @@
             <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
         <span>Home</span>
-    </button>
-    <button 
-        class="nav-item" 
-        class:active={isActive(`${base}/templates`)}
-        onclick={() => goto(`${base}/templates/view`)}
-    >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-        </svg>
-        <span>Templates</span>
     </button>
     <button 
         class="nav-item" 
@@ -49,6 +50,18 @@
             <path d="M8 17v-3"></path>
         </svg>
         <span>Results</span>
+    </button>
+    <button 
+        class="nav-item" 
+        class:active={isActive(`${base}/info`)}
+        onclick={() => goto(`${base}/info`)}
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>Info</span>
     </button>
 </nav>
 
@@ -64,11 +77,11 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--color-bg-primary);
+            background: var(--color-card-bg);
             border-top: 1px solid var(--color-border);
             padding: 0.5rem 0;
             z-index: 9999;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.25);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
@@ -97,6 +110,7 @@
 
         .nav-item.active {
             background: var(--color-bg-secondary);
+            border-radius: 8px;
         }
 
         .nav-item svg {

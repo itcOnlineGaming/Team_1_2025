@@ -57,14 +57,23 @@
     onMount(() => {
         const loadSession = () => {
             const unsubscribe = sessionStore.activeSession.subscribe((session) => {
-                console.log('Active session loaded:', session);
                 activeSession = session;
+                
+                // Load questions from active session if they exist
+                if (session && session.questions && session.questions.length > 0) {
+                    questions = session.questions.map(q => ({
+                        id: q.id,
+                        text: q.label || '',
+                        type: q.stars ? 'rating' as const : (q.type === 'textarea' ? 'textarea' as const : 'text' as const),
+                        response: '',
+                        rating: q.stars ? 0 : undefined
+                    }));
+                }
             });
 
             setTimeout(() => {
                 if (!activeSession && loadAttempts < 3) {
                     loadAttempts++;
-                    console.log('Retrying to load session, attempt:', loadAttempts);
                     loadSession();
                 } else if (!activeSession) {
                     console.error('No active session found after retries');
@@ -135,6 +144,26 @@
             return;
         }
         
+        // Validate that at least one question is added
+        if (questions.length === 0) {
+            alert('Please add at least one evaluation question before submitting.');
+            return;
+        }
+        
+        // Validate that all questions are answered
+        const unanswered = questions.filter(q => {
+            if (q.type === 'rating') {
+                return !q.rating || q.rating === 0;
+            } else {
+                return !q.response || q.response.trim() === '';
+            }
+        });
+        
+        if (unanswered.length > 0) {
+            alert(`Please answer all questions before submitting. ${unanswered.length} question(s) still need responses.`);
+            return;
+        }
+        
         isSubmitting = true;
         
         // Convert questions to response format
@@ -147,9 +176,6 @@
             }
         });
 
-        console.log('Evaluation responses:', responses);
-        console.log('Current active session:', activeSession);
-
         // End the session
         sessionStore.endSession(responses);
 
@@ -161,8 +187,56 @@
     };
 
     function handlePostTestSubmit() {
-        // Save post-test responses (you can add this to sessionStore or localStorage)
-        console.log('Post-test responses:', postTestResponses);
+        // Validate that all rating questions have been answered (not 0)
+        if (postTestResponses.overallExperience === 0) {
+            alert('Please rate your overall experience before submitting.');
+            postTestPage = 1;
+            return;
+        }
+        if (postTestResponses.easeOfUse === 0) {
+            alert('Please rate how easy it was to use the application.');
+            postTestPage = 1;
+            return;
+        }
+        if (postTestResponses.helpfulness === 0) {
+            alert('Please rate how helpful the session tracking feature was.');
+            postTestPage = 1;
+            return;
+        }
+        if (postTestResponses.likelyToUse === 0) {
+            alert('Please rate how likely you are to use this tool.');
+            postTestPage = 2;
+            return;
+        }
+        if (postTestResponses.frustrationLevel === 0) {
+            alert('Please rate your frustration level.');
+            postTestPage = 2;
+            return;
+        }
+        if (postTestResponses.designRating === 0) {
+            alert('Please rate the design and layout.');
+            postTestPage = 2;
+            return;
+        }
+        if (postTestResponses.wouldRecommend === 0) {
+            alert('Please rate whether you would recommend this tool.');
+            postTestPage = 2;
+            return;
+        }
+        
+        // Validate text responses
+        if (!postTestResponses.feedback || postTestResponses.feedback.trim() === '') {
+            alert('Please provide your overall feedback before submitting.');
+            postTestPage = 3;
+            return;
+        }
+        if (!postTestResponses.improvements || postTestResponses.improvements.trim() === '') {
+            alert('Please share what could be improved.');
+            postTestPage = 3;
+            return;
+        }
+        
+        // Save post-test responses
         localStorage.setItem('postTestResponses', JSON.stringify(postTestResponses));
         
         // Navigate with graphs parameter
@@ -579,7 +653,7 @@
         position: absolute;
         top: 1.5rem;
         left: 1.5rem;
-        background: var(--color-bg-secondary);
+        background: var(--color-card-bg);
         color: var(--color-text-primary);
         border: 1px solid var(--color-border);
         padding: 0.6rem 1.2rem;
@@ -632,12 +706,12 @@
 
     .page-header h1 {
         margin: 0 0 0.5rem 0;
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
         font-size: 2rem;
     }
 
     .session-info {
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
         font-size: 0.95rem;
         margin: 0;
     }
@@ -649,7 +723,7 @@
     }
 
     .add-questions-section {
-        background: var(--color-bg-secondary);
+        background: var(--color-card-bg);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 2rem;
@@ -683,11 +757,22 @@
         padding: 0.8rem 1rem;
         border: 2px solid var(--color-border);
         border-radius: 8px;
-        background: var(--color-bg-primary);
+        background: var(--color-input-bg);
         color: var(--color-text-primary);
         font-size: 1rem;
         cursor: pointer;
         transition: all 0.2s;
+    }
+
+    @media (max-width: 768px) {
+        .dropdown-container {
+            width: 100%;
+        }
+
+        .question-select {
+            font-size: 0.9rem;
+            padding: 0.7rem 0.8rem;
+        }
     }
 
     .question-select:hover {
@@ -725,7 +810,7 @@
     }
 
     .or-divider span {
-        background: var(--color-bg-secondary);
+        background: var(--color-card-bg);
         padding: 0 1rem;
         color: var(--color-text-secondary);
         font-weight: 600;
@@ -749,7 +834,7 @@
         padding: 0.8rem 1rem;
         border: 2px solid var(--color-border);
         border-radius: 8px;
-        background: var(--color-bg-primary);
+        background: var(--color-input-bg);
         color: var(--color-text-primary);
         font-size: 1rem;
         transition: all 0.2s;
@@ -816,7 +901,7 @@
     }
 
     .question-card {
-        background: var(--color-bg-secondary);
+        background: var(--color-card-bg);
         border: 1px solid var(--color-border);
         border-radius: 12px;
         padding: 1.5rem;
@@ -892,7 +977,7 @@
     }
 
     .star.filled {
-        color: #FFD700;
+        color: var(--color-warning, #FFD700);
     }
 
     .star:hover {
@@ -911,7 +996,7 @@
         padding: 0.8rem 1rem;
         border: 2px solid var(--color-border);
         border-radius: 8px;
-        background: var(--color-bg-primary);
+        background: var(--color-input-bg);
         color: var(--color-text-primary);
         font-size: 1rem;
         font-family: inherit;
@@ -933,7 +1018,7 @@
     .empty-state {
         text-align: center;
         padding: 3rem 1rem;
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
         font-size: 1.05rem;
     }
 
@@ -955,7 +1040,7 @@
     }
 
     .btn-submit:hover:not(:disabled) {
-        background: #10b981;
+        background: var(--color-success-hover);
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
@@ -994,7 +1079,7 @@
     }
 
     .submitting-content {
-        background: var(--color-bg-primary);
+        background: var(--color-card-bg);
         padding: 2rem 3rem;
         border-radius: 12px;
         display: flex;
@@ -1074,7 +1159,7 @@
         width: 100%;
         height: 8px;
         border-radius: 5px;
-        background: linear-gradient(to right, #ef4444 0%, #f59e0b 25%, #eab308 50%, #84cc16 75%, #22c55e 100%);
+        background: linear-gradient(to right, var(--color-danger) 0%, var(--color-warning) 50%, var(--color-success) 100%);
         outline: none;
         cursor: pointer;
         -webkit-appearance: none;
@@ -1087,7 +1172,7 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: white;
+        background: var(--color-card-bg);
         border: 3px solid var(--color-accent);
         cursor: pointer;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -1103,7 +1188,7 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: white;
+        background: var(--color-card-bg);
         border: 3px solid var(--color-accent);
         cursor: pointer;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -1131,7 +1216,7 @@
         border-radius: 4px;
         font-size: 0.95rem;
         font-family: inherit;
-        background: var(--color-bg-primary);
+        background: var(--color-input-bg);
         color: var(--color-text-primary);
         resize: vertical;
     }

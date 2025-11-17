@@ -114,8 +114,8 @@
                         <!-- Line path with gradient -->
                         <defs>
                             <linearGradient id="ratingGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:var(--color-accent);stop-opacity:0.3" />
-                                <stop offset="100%" style="stop-color:var(--color-accent);stop-opacity:0" />
+                                <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.3" />
+                                <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0" />
                             </linearGradient>
                         </defs>
 
@@ -130,7 +130,7 @@
                             <path
                                 d={generateLinePath(chartData.ratings, 400, 250, 20)}
                                 fill="none"
-                                stroke="var(--color-accent)"
+                                stroke="var(--color-primary)"
                                 stroke-width="3"
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -173,8 +173,8 @@
                         <!-- Line path with gradient -->
                         <defs>
                             <linearGradient id="durationGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:var(--color-success);stop-opacity:0.3" />
-                                <stop offset="100%" style="stop-color:var(--color-success);stop-opacity:0" />
+                                <stop offset="0%" stop-color="var(--color-success)" stop-opacity="0.3" />
+                                <stop offset="100%" stop-color="var(--color-success)" stop-opacity="0" />
                             </linearGradient>
                         </defs>
 
@@ -271,60 +271,99 @@
 
 <style>
     .session-graphs {
-        padding: 1rem;
+        padding: 0;
     }
 
     .stats-summary {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
     }
 
     .stat-card {
-        background: var(--color-bg-secondary);
-        padding: 1.5rem;
-        border-radius: 8px;
+        background: var(--color-card-bg);
+        padding: 2rem 1.5rem;
+        border-radius: 12px;
         text-align: center;
         border: 2px solid var(--color-border);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(123, 104, 166, 0.2);
+        border-color: var(--color-primary);
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
     }
 
     .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: 2.75rem;
+        font-weight: 800;
         color: var(--color-accent);
         margin-bottom: 0.5rem;
+        line-height: 1;
     }
 
     .stat-label {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         color: var(--color-text-secondary);
-        font-weight: 500;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .charts-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
     }
 
     .chart-section {
-        background: var(--color-bg-secondary);
-        padding: 1.5rem;
-        border-radius: 8px;
+        background: var(--color-card-bg);
+        padding: 2rem;
+        border-radius: 12px;
         border: 2px solid var(--color-border);
+        transition: all 0.3s ease;
+    }
+
+    .chart-section:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     }
 
     .chart-section h3 {
-        margin: 0 0 1.5rem 0;
+        margin: 0 0 1.75rem 0;
         color: var(--color-text-primary);
+        font-size: 1.25rem;
+        font-weight: 700;
     }
 
     .line-chart-container {
         width: 100%;
         height: 250px;
         position: relative;
+        background: var(--color-bg-secondary);
+        border-radius: 8px;
+        padding: 0.5rem;
     }
 
     .line-chart {
@@ -345,16 +384,18 @@
     }
 
     .sessions-table {
-        background: var(--color-bg-secondary);
-        padding: 1.5rem;
-        border-radius: 8px;
+        background: var(--color-card-bg);
+        padding: 2rem;
+        border-radius: 12px;
         border: 2px solid var(--color-border);
         overflow-x: auto;
     }
 
     .sessions-table h3 {
-        margin: 0 0 1rem 0;
+        margin: 0 0 1.5rem 0;
         color: var(--color-text-primary);
+        font-size: 1.25rem;
+        font-weight: 700;
     }
 
     table {
@@ -364,64 +405,172 @@
 
     th {
         text-align: left;
-        padding: 0.75rem;
+        padding: 1rem 0.75rem;
         border-bottom: 2px solid var(--color-border);
         color: var(--color-text-primary);
-        font-weight: 600;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     td {
-        padding: 0.75rem;
+        padding: 1rem 0.75rem;
         border-bottom: 1px solid var(--color-border);
         color: var(--color-text-secondary);
     }
 
-    tr:hover {
-        background: var(--color-bg-primary);
+    tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    tbody tr:hover {
+        background: var(--color-bg-secondary);
+        transform: scale(1.01);
     }
 
     .rating-display {
-        font-weight: 500;
+        font-weight: 600;
         color: var(--color-accent);
     }
 
     .question-count {
-        font-weight: 500;
-        color: var(--color-info);
-        background: rgba(143, 168, 196, 0.1);
-        padding: 0.25rem 0.6rem;
-        border-radius: 12px;
+        font-weight: 600;
+        color: var(--color-primary);
+        background: rgba(123, 104, 166, 0.15);
+        padding: 0.35rem 0.75rem;
+        border-radius: 14px;
         font-size: 0.85rem;
+        display: inline-block;
     }
 
     .no-rating {
         color: var(--color-text-secondary);
-        opacity: 0.5;
+        opacity: 0.6;
+        font-style: italic;
     }
 
     .no-data {
         text-align: center;
         padding: 4rem 2rem;
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
+        background: var(--color-card-bg);
+        border-radius: 12px;
+        border: 2px dashed var(--color-border);
     }
 
     .no-data p:first-child {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.8;
     }
 
     .no-data-subtext {
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         opacity: 0.7;
+        color: var(--color-text-secondary);
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
         .charts-container {
             grid-template-columns: 1fr;
         }
 
+        .stats-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .session-graphs {
+            padding: 0;
+        }
+
+        .stats-summary {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+        }
+
+        .charts-container {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-section {
+            padding: 1.5rem;
+        }
+
+        .chart-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .line-chart-container {
+            height: 220px;
+        }
+
+        .sessions-table {
+            padding: 1.5rem;
+        }
+
+        .sessions-table h3 {
+            font-size: 1.1rem;
+        }
+
         table {
             font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 0.75rem 0.5rem;
+        }
+
+        th {
+            font-size: 0.8rem;
+        }
+
+        .no-data p:first-child {
+            font-size: 2rem;
+        }
+
+        .no-data-subtext {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stat-card {
+            padding: 1.25rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+        }
+
+        table {
+            font-size: 0.8rem;
+        }
+
+        th, td {
+            padding: 0.6rem 0.4rem;
         }
     }
 </style>

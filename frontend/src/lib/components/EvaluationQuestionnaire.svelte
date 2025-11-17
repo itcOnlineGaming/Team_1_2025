@@ -232,7 +232,7 @@
                                         <span 
                                             class="cursor-pointer text-2xl hover:scale-110 transition-transform" 
                                             onclick={() => setRating(q.id, i + 1)}
-                                            onkeydown={(e) => e.key === 'Enter' && setRating(q.id, i + 1)}
+                                            onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && setRating(q.id, i + 1)}
                                             role="button"
                                             tabindex="0"
                                             aria-label={`Rate ${i + 1} out of 5`}
@@ -366,7 +366,7 @@
     /* Rating-only specific styles */
     .rating-only {
         padding: 1rem;
-        background: #f8f9fa;
+        background: var(--color-bg-secondary);
         border-radius: 8px;
         border: 2px dashed var(--color-border);
     }
@@ -400,7 +400,7 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: white;
+        background: var(--color-card-bg);
         border: 3px solid #6366f1;
         cursor: pointer;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -416,7 +416,7 @@
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: white;
+        background: var(--color-card-bg);
         border: 3px solid #6366f1;
         cursor: pointer;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -467,7 +467,7 @@
         height: 50px;
         border-radius: 50%;
         border: 2px solid var(--color-border);
-        background: white;
+        background: var(--color-card-bg);
         font-size: 1.25rem;
         font-weight: 600;
         cursor: pointer;

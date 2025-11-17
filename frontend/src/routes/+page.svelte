@@ -70,20 +70,24 @@
         goto(`${base}/results`);
     }
 
-    function goToViewTemplates() {
-        goto(`${base}/templates/view`);
+    // Obfuscated email to prevent scraping
+    function openContact() {
+        const parts = ['C00283423', 'setu', 'ie'];
+        const email = parts[0] + '@' + parts[1] + '.' + parts[2];
+        window.location.href = 'mailto:' + email;
     }
 </script>
 
 <main>
     <!-- Desktop nav buttons -->
     <nav class="nav-buttons desktop-only">
-        <button class="nav-btn" onclick={goToViewTemplates}>
+        <button class="nav-btn" onclick={() => goto(`${base}/store`)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
-            View Templates
+            Store
         </button>
         <button class="nav-btn" onclick={() => goto(`${base}/results`)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -93,6 +97,14 @@
                 <path d="M8 17v-3"></path>
             </svg>
             Results
+        </button>
+        <button class="nav-btn contact-btn" onclick={() => goto(`${base}/info`)}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Info & Contact
         </button>
     </nav>
     
@@ -122,28 +134,39 @@
         {#if welcomePage === 1}
             <h2>Welcome, Test Participant!</h2>
             
-            <p><strong>Thank you for participating in our user study!</strong></p>
+            <p><strong>Thank you for taking part in our user study!</strong></p>
             
-            <p>You are an essential part of our final-year research project. We are university students conducting user testing to evaluate the effectiveness of productivity tracking tools in real-world learning scenarios. Your feedback will directly contribute to our academic research and help us improve the application.</p>
+            <p>We're university students conducting research on productivity tracking tools for our final-year project. This application helps you monitor work sessions, reflect on your productivity, and track patterns over time.</p>
             
-            <div class="pagination-info">Page 1 of 4</div>
+            <h3><strong>Why Your Input Matters</strong></h3>
+            <p>Your honest feedback will directly shape our research findings and help us understand how students use productivity tools in real-world scenarios. There are no right or wrong answers - we want to see how you naturally interact with the system.</p>
+            
+            <p class="help-text"><strong>Time Commitment:</strong> Approximately 1-2 minutes per session for evaluation</p>
+            
+            <div class="pagination-info">Page 1 of 3</div>
             
             <button class="btn-primary btn-full btn-large" onclick={() => welcomePage = 2}>
                 Next →
             </button>
         {:else if welcomePage === 2}
-            <h2><strong>Your Testing Scenario</strong></h2>
+            <h2><strong>How It Works</strong></h2>
             
-            <p>For this session, imagine you are <strong>studying for your driver's theory test</strong>. You have an exam coming up soon and need to track your study sessions to ensure you're putting in enough focused time.</p>
+            <p>For this test, imagine you're <strong>studying for an important exam</strong> or working on a project. You want to track your work sessions and understand your productivity patterns.</p>
             
-            <p>You want to monitor how long you spend studying, track your progress across multiple sessions, and reflect on what worked well and what didn't after each study block.</p>
+            <ol class="instructions-list">
+                <li><strong>Start a session</strong> - click the button and the timer begins tracking your work time</li>
+                <li><strong>Work on your task</strong> - focus on what you need to do while the timer runs in the background</li>
+                <li><strong>End the session</strong> when you're done or need a break</li>
+                <li><strong>Add evaluation questions</strong> - choose from our templates or create your own custom questions</li>
+                <li><strong>Answer your questions</strong> - reflect on your focus, productivity, challenges, and accomplishments</li>
+                <li><strong>View analytics</strong> - see your patterns over time, search past sessions, and track your progress</li>
+            </ol>
             
-            <p>This productivity tracker will help you log your study sessions, time how long you work, and provide structured feedback after each session to help you identify patterns and improve your study habits.</p>
+            <div class="feature-highlight">
+                <strong>✨ Key Features:</strong> Group related sessions, add notes for context, duplicate questions from past sessions, search your entire history, and export beautiful HTML reports!
+            </div>
             
-            <h3><strong>Purpose</strong></h3>
-            <p>Track your work sessions and provide valuable feedback that helps both you and our research team understand how students use productivity tools during important study periods.</p>
-            
-            <div class="pagination-info">Page 2 of 4</div>
+            <div class="pagination-info">Page 2 of 3</div>
             
             <div class="button-group">
                 <button class="btn-secondary" onclick={() => welcomePage = 1}>
@@ -154,50 +177,25 @@
                 </button>
             </div>
         {:else if welcomePage === 3}
-            <h2><strong>How It Works</strong></h2>
+            <h2><strong>What We're Testing</strong></h2>
             
-            <ol class="instructions-list">
-                <li><strong>Start a new session</strong> - click the button and the timer begins immediately</li>
-                <li><strong>Study for your driver's test</strong> - the timer will track your session in the background while you focus on learning road signs, rules, and regulations</li>
-                <li><strong>Come back and end the session</strong> when you finish your study block or need to take a break</li>
-                <li><strong>Add evaluation questions</strong> - choose from a dropdown or create your own custom questions about your session</li>
-                <li><strong>Answer your questions</strong> - this is crucial for our research! Tell us about your focus level, distractions you faced, what topics you covered, and how productive you felt</li>
-                <li><strong>View your session analytics</strong> to see your study patterns over time and track your progress toward your test date</li>
-            </ol>
+            <p>Your experience will help us evaluate:</p>
+            <ul>
+                <li><strong>Usability:</strong> How intuitive and easy the interface is to navigate</li>
+                <li><strong>Workflow:</strong> Whether the session tracking and evaluation process feels natural</li>
+                <li><strong>Features:</strong> If the analytics, search, grouping, and notes are useful</li>
+                <li><strong>Pain Points:</strong> Any confusion, frustration, or technical issues you encounter</li>
+            </ul>
             
-            <h3><strong>Time Required</strong></h3>
-            <p><strong>1-2 minutes</strong> for adding questions and answering them after each session. Your actual study session can be as long or short as you need - we recommend 25-45 minutes for a focused study block.</p>
+            <h3><strong>Your Privacy & Data</strong></h3>
+            <p>All session data is stored <strong>locally in your browser</strong> - we never send it to a server. For research purposes, we'll collect anonymized usage feedback through the post-session questionnaire. Your participation is completely voluntary.</p>
             
-            <div class="pagination-info">Page 3 of 4</div>
+            <p class="help-text"><strong>💡 Tip:</strong> Be honest in your feedback! Critical insights are just as valuable as positive ones.</p>
+            
+            <div class="pagination-info">Page 3 of 3</div>
             
             <div class="button-group">
                 <button class="btn-secondary" onclick={() => welcomePage = 2}>
-                    ← Back
-                </button>
-                <button class="btn-primary" onclick={() => welcomePage = 4}>
-                    Next →
-                </button>
-            </div>
-        {:else if welcomePage === 4}
-            <h2><strong>What We're Testing</strong></h2>
-            
-            <p>We want to understand:</p>
-            <ul>
-                <li>How intuitive the session tracking interface is for first-time users</li>
-                <li>Whether the questionnaire provides meaningful self-reflection opportunities</li>
-                <li>If the analytics help you understand your productivity patterns</li>
-                <li>Any pain points or confusing elements you encounter</li>
-            </ul>
-            
-            <h3><strong>Your Data</strong></h3>
-            <p>All data collected during this test will be anonymized and used solely for academic research purposes as part of our college project. Your participation is voluntary, and you can stop at any time.</p>
-            
-            <p class="help-text">Questions or technical issues? Please let the research team know immediately.</p>
-            
-            <div class="pagination-info">Page 4 of 4</div>
-            
-            <div class="button-group">
-                <button class="btn-secondary" onclick={() => welcomePage = 3}>
                     ← Back
                 </button>
                 <button class="btn-primary btn-large" onclick={handleStartSession}>
@@ -212,10 +210,22 @@
 
 <!-- Analytics Popup -->
 {#if showGraphs}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div class="modal-overlay" role="presentation" tabindex="-1" onclick={handleGraphsClose} onkeydown={(e) => e.key === 'Escape' && handleGraphsClose()}>
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <div class="modal-content card graphs-modal" role="dialog" aria-modal="true" tabindex="-1" onclick={(e) => e.stopPropagation()}>
+    <div 
+        class="modal-overlay" 
+        role="button" 
+        tabindex="0"
+        onclick={handleGraphsClose} 
+        onkeydown={(e) => (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') && handleGraphsClose()}
+        aria-label="Close analytics"
+    >
+        <div 
+            class="modal-content card graphs-modal" 
+            role="dialog" 
+            aria-modal="true" 
+            tabindex="0" 
+            onclick={(e) => e.stopPropagation()}
+            onkeydown={(e) => e.stopPropagation()}
+        >
             <div class="modal-header">
                 <h2>📊 Session Analytics</h2>
                 <button class="btn-close" onclick={handleGraphsClose}>✕</button>
@@ -237,24 +247,21 @@
 <!-- End of Test Popup -->
 <Popup bind:isOpen={showEndTestPrompt} title="Session Complete! 🎉" showCloseButton={false}>
     <div class="popup-inner">
-        <p><strong>Thank you for completing your session!</strong></p>
+        <p><strong>Great work! Your session has been saved.</strong></p>
         
-        <p>Your feedback has been recorded and will help us improve the experience.</p>
-
-
+        <p>Your responses have been recorded. You can view your session history, add notes, group sessions, and track your progress in the Results page.</p>
 
         <div class="summary-box">
-            <h3>What would you like to do next?</h3>
+            <h3>What's next?</h3>
+            <p>Start another session to continue tracking, or view your analytics to see your patterns and progress.</p>
         </div>
-
-
 
         <div class="action-buttons">
             <button class="btn-secondary btn-full" onclick={handleStartAnother}>
                 🔄 Start Another Session
             </button>
             <button class="btn-primary btn-full" onclick={handleFinish}>
-                ✓ Finish & View Results
+                📊 View Results & Analytics
             </button>
         </div>
     </div>
@@ -287,16 +294,17 @@
     .hero-content h1 {
         font-size: 3rem;
         margin: 0;
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
         text-align: center;
     }
 
 
     .subtitle {
         font-size: 1.2rem;
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
         text-align: center;
         margin: 0;
+        opacity: 0.9;
     }
 
 
@@ -309,7 +317,7 @@
     }
 
     .nav-btn {
-        background: var(--color-bg-secondary);
+        background: var(--color-card-bg);
         color: var(--color-text-primary);
         border: 1px solid var(--color-border);
         padding: 0.65rem 1.25rem;
@@ -333,7 +341,16 @@
         color: white;
         border-color: var(--color-primary);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 12px rgba(123, 104, 166, 0.3);
+    }
+
+    .contact-btn {
+        margin-left: auto;
+    }
+
+    .contact-btn:hover {
+        background: var(--color-success);
+        border-color: var(--color-success);
     }
 
     .desktop-only {
@@ -378,6 +395,17 @@
     .instructions-list li {
         margin: 0.5rem 0;
         line-height: 1.5;
+    }
+
+    .feature-highlight {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-success));
+        color: white;
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        text-align: center;
+        font-size: 0.95rem;
+        line-height: 1.6;
     }
 
 
@@ -448,7 +476,7 @@
         align-items: start;
         padding: 1.5rem;
         border-bottom: 1px solid var(--color-border);
-        background-color: var(--color-bg-primary);
+        background-color: var(--color-bg-secondary);
     }
 
 

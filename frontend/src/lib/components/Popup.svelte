@@ -67,11 +67,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000;
+        z-index: 10000;
     }
 
     .popup-content {
-        background: var(--color-bg-secondary);
+        background: var(--color-card-bg);
         border-radius: 8px;
         max-width: 90%;
         max-height: 90vh;
@@ -87,7 +87,7 @@
         align-items: center;
         padding: 1.5rem;
         border-bottom: 1px solid var(--color-border);
-        background-color: var(--color-bg-primary);
+        background-color: var(--color-bg-secondary);
     }
 
     .popup-header h2 {
@@ -114,12 +114,12 @@
     }
 
     .close-btn:hover {
-        background-color: var(--color-bg-primary);
+        background-color: var(--color-bg-secondary);
         color: var(--color-text-primary);
     }
 
     .popup-body {
         padding: 1.5rem;
-        background-color: var(--color-bg-secondary);
+        background-color: var(--color-card-bg);
     }
 </style>

@@ -91,12 +91,12 @@
 
     .session-info h3 {
         margin: 0 0 0.5rem 0;
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
         font-size: 1.5rem;
     }
 
     .template-name {
-        color: var(--color-accent);
+        color: var(--color-text-on-dark);
         font-size: 1.1rem;
         font-weight: 600;
         margin: 0 0 2rem 0;
@@ -130,15 +130,15 @@
         height: 240px;
         border-radius: 50%;
         border: none;
-        background: var(--color-bg-primary);
+        background: var(--color-card-bg);
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .timer-button:hover {
         transform: translate(-50%, -50%) scale(1.05);
-        box-shadow: 0 6px 30px rgba(123, 104, 166, 0.3);
+        box-shadow: 0 6px 30px rgba(123, 104, 166, 0.5);
         background: var(--color-bg-secondary);
     }
 
@@ -175,7 +175,7 @@
 
     .detail-item {
         margin: 0.5rem 0;
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
         font-size: 0.95rem;
     }
 

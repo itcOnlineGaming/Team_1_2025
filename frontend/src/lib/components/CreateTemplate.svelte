@@ -151,7 +151,6 @@
     }
 
     function handlePreviewSubmit(responses: Record<string, any>) {
-        console.log('Preview responses:', responses);
         alert('Preview submission successful! (This is just a preview - no data was saved)');
     }
 
