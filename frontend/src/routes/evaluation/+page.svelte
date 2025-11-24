@@ -424,220 +424,18 @@
 
 <!-- Post-Test Questionnaire Popup -->
 <Popup bind:isOpen={showPostTestQuestionnaire} title="User Study Feedback" showCloseButton={false}>
-    <div class="popup-inner">
-        {#if postTestPage === 1}
-            <h2>Thank You for Completing the Session!</h2>
-            
-            <p>Your feedback is invaluable to our research. Please take a moment to answer a few questions about your experience with the productivity tracker.</p>
-            
-            <div class="question-section">
-                <div class="question-label">
-                    How would you rate your overall experience?
-                    <span class="rating-value">{postTestResponses.overallExperience}/5</span>
-                </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    bind:value={postTestResponses.overallExperience}
-                    class="slider"
-                />
-                <div class="slider-labels">
-                    <span>Poor</span>
-                    <span>Excellent</span>
-                </div>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    How easy was it to use the application?
-                    <span class="rating-value">{postTestResponses.easeOfUse}/5</span>
-                </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    bind:value={postTestResponses.easeOfUse}
-                    class="slider"
-                />
-                <div class="slider-labels">
-                    <span>Very Difficult</span>
-                    <span>Very Easy</span>
-                </div>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    How helpful was the session tracking feature?
-                    <span class="rating-value">{postTestResponses.helpfulness}/5</span>
-                </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    bind:value={postTestResponses.helpfulness}
-                    class="slider"
-                />
-                <div class="slider-labels">
-                    <span>Not Helpful</span>
-                    <span>Very Helpful</span>
-                </div>
-            </div>
-
-            <div class="pagination-info">Page 1 of 3</div>
-            
-            <button class="btn-primary btn-full btn-large" onclick={() => postTestPage = 2}>
-                Next →
+    <div class="popup-inner wide-popup">
+        <div class="google-form-container" style="width:100%;max-width:1000px;margin:auto;">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfTDvOwjwJdLorf9uN4iULcCTH-rK1Fv-L6QY0uCMcYV0Dp5Q/viewform?embedded=true" width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+        <div class="action-buttons" style="margin-top:2rem;display:flex;gap:1rem;">
+            <button class="btn-secondary btn-full" onclick={() => { showPostTestQuestionnaire = false; }}>
+                Start Another Session
             </button>
-
-        {:else if postTestPage === 2}
-            <h2>Your Thoughts</h2>
-
-            <div class="question-section">
-                <div class="question-label">
-                    How likely are you to use this for your own productivity tracking?
-                    <span class="rating-value">{postTestResponses.likelyToUse}/5</span>
-                </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    bind:value={postTestResponses.likelyToUse}
-                    class="slider"
-                />
-                <div class="slider-labels">
-                    <span>Not Likely</span>
-                    <span>Very Likely</span>
-                </div>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    How frustrating was the experience?
-                    <span class="rating-value">{postTestResponses.frustrationLevel}/5</span>
-                </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    bind:value={postTestResponses.frustrationLevel}
-                    class="slider"
-                />
-                <div class="slider-labels">
-                    <span>Not Frustrating</span>
-                    <span>Very Frustrating</span>
-                </div>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    How would you rate the design and user interface?
-                    <span class="rating-value">{postTestResponses.designRating}/5</span>
-                </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    bind:value={postTestResponses.designRating}
-                    class="slider"
-                />
-                <div class="slider-labels">
-                    <span>Poor</span>
-                    <span>Excellent</span>
-                </div>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    Would you recommend this to a friend?
-                    <span class="rating-value">{postTestResponses.wouldRecommend}/5</span>
-                </div>
-                <input
-                    type="range"
-                    min="1"
-                    max="5"
-                    bind:value={postTestResponses.wouldRecommend}
-                    class="slider"
-                />
-                <div class="slider-labels">
-                    <span>No</span>
-                    <span>Definitely</span>
-                </div>
-            </div>
-
-            <div class="pagination-info">Page 2 of 3</div>
-            
-            <div class="button-group">
-                <button class="btn-secondary" onclick={() => postTestPage = 1}>
-                    ← Back
-                </button>
-                <button class="btn-primary" onclick={() => postTestPage = 3}>
-                    Next →
-                </button>
-            </div>
-
-        {:else if postTestPage === 3}
-            <h2>Final Thoughts</h2>
-
-            <div class="question-section">
-                <div class="question-label">
-                    What was your favorite feature?
-                </div>
-                <textarea
-                    bind:value={postTestResponses.favoriteFeature}
-                    class="input-field"
-                    placeholder="e.g., The timer, the graphs, the questionnaire..."
-                    rows="3"
-                ></textarea>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    What did you like least or find most confusing?
-                </div>
-                <textarea
-                    bind:value={postTestResponses.leastFavorite}
-                    class="input-field"
-                    placeholder="Share anything that was unclear or frustrating..."
-                    rows="3"
-                ></textarea>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    Any suggestions for improvements?
-                </div>
-                <textarea
-                    bind:value={postTestResponses.improvements}
-                    class="input-field"
-                    placeholder="How can we make this better?"
-                    rows="3"
-                ></textarea>
-            </div>
-
-            <div class="question-section">
-                <div class="question-label">
-                    Additional comments or feedback
-                </div>
-                <textarea
-                    bind:value={postTestResponses.feedback}
-                    class="input-field"
-                    placeholder="Anything else you'd like to share..."
-                    rows="4"
-                ></textarea>
-            </div>
-
-            <div class="pagination-info">Page 3 of 3</div>
-            
-            <div class="button-group">
-                <button class="btn-secondary" onclick={() => postTestPage = 2}>
-                    ← Back
-                </button>
-                <button class="btn-primary btn-large" onclick={handlePostTestSubmit}>
-                    🎉 Complete Study
-                </button>
-            </div>
-        {/if}
+            <button class="btn-primary btn-full" onclick={() => { showPostTestQuestionnaire = false; goto(`${base}/?showGraphs=true`); }}>
+                View Results & Analytics
+            </button>
+        </div>
     </div>
 </Popup>
 
@@ -1274,5 +1072,22 @@
             padding: 1.5rem 2rem;
             margin: 1rem;
         }
+    }
+
+    :global(.popup-modal) {
+        max-width: 1200px !important;
+        width: 100vw !important;
+    }
+
+    .popup-inner.wide-popup {
+        max-width: 1100px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .google-form-container {
+        max-width: 1050px;
+        width: 100%;
+        margin: 0 auto;
     }
 </style>

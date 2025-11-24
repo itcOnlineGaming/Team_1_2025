@@ -162,10 +162,6 @@
                 <li><strong>View analytics</strong> - see your patterns over time, search past sessions, and track your progress</li>
             </ol>
             
-            <div class="feature-highlight">
-                <strong>✨ Key Features:</strong> Group related sessions, add notes for context, duplicate questions from past sessions, search your entire history, and export beautiful HTML reports!
-            </div>
-            
             <div class="pagination-info">Page 2 of 3</div>
             
             <div class="button-group">
@@ -227,7 +223,7 @@
             onkeydown={(e) => e.stopPropagation()}
         >
             <div class="modal-header">
-                <h2>📊 Session Analytics</h2>
+                <h2>Session Analytics</h2>
                 <button class="btn-close" onclick={handleGraphsClose}>✕</button>
             </div>
             <div class="modal-body">
@@ -258,10 +254,10 @@
 
         <div class="action-buttons">
             <button class="btn-secondary btn-full" onclick={handleStartAnother}>
-                🔄 Start Another Session
+                Start Another Session
             </button>
             <button class="btn-primary btn-full" onclick={handleFinish}>
-                📊 View Results & Analytics
+                View Results & Analytics
             </button>
         </div>
     </div>

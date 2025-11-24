@@ -40,7 +40,7 @@
         <div class="info-sections">
             <!-- About Section -->
             <div class="info-card">
-                <h2>📱 About This App</h2>
+                <h2>About This App</h2>
                 <p>Session Tracker is a productivity tool designed to help you monitor work sessions, track patterns, and reflect on your progress.</p>
                 <p><strong>Version:</strong> 1.0.0</p>
                 <p><strong>Built for:</strong> Academic Research Project</p>
@@ -48,7 +48,7 @@
 
             <!-- Contact Section -->
             <div class="info-card contact-card">
-                <h2>📧 Contact Us</h2>
+                <h2>Contact Us</h2>
                 <p>Have questions, feedback, or technical issues?</p>
                 <button class="btn-contact" onclick={openContact}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -62,24 +62,24 @@
 
             <!-- Features Section -->
             <div class="info-card">
-                <h2>✨ Key Features</h2>
+                <h2>Key Features</h2>
                 <ul class="features-list">
-                    <li>⏱️ <strong>Session Tracking:</strong> Monitor your work time with an automatic timer</li>
-                    <li>📝 <strong>Dynamic Questions:</strong> Add evaluation questions from templates or create your own custom questions during evaluation</li>
-                    <li>⭐ <strong>Ratings & Responses:</strong> Use star ratings (1-5) or text responses to evaluate your sessions</li>
-                    <li>📊 <strong>Analytics:</strong> View patterns, statistics, and progress over time with interactive charts</li>
-                    <li>🔍 <strong>Search:</strong> Find past sessions quickly by name, group, notes, or responses</li>
-                    <li>🏷️ <strong>Groups:</strong> Organize sessions into custom categories for better organization</li>
-                    <li>📋 <strong>Notes:</strong> Add context and reflections to completed sessions</li>
-                    <li>🔄 <strong>Duplicate:</strong> Reuse questions from previous sessions to maintain consistency</li>
-                    <li>📄 <strong>Export:</strong> Generate beautiful HTML reports of your session history</li>
-                    <li>🛍️ <strong>Rewards Store:</strong> Earn stars from ratings and spend them on rewards</li>
+                    <li><strong>Session Tracking:</strong> Monitor your work time with an automatic timer</li>
+                    <li><strong>Dynamic Questions:</strong> Add evaluation questions from templates or create your own custom questions during evaluation</li>
+                    <li><strong>Ratings & Responses:</strong> Use star ratings (1-5) or text responses to evaluate your sessions</li>
+                    <li><strong>Analytics:</strong> View patterns, statistics, and progress over time with interactive charts</li>
+                    <li><strong>Search:</strong> Find past sessions quickly by name, group, notes, or responses</li>
+                    <li><strong>Groups:</strong> Organize sessions into custom categories for better organization</li>
+                    <li><strong>Notes:</strong> Add context and reflections to completed sessions</li>
+                    <li><strong>Duplicate:</strong> Reuse questions from previous sessions to maintain consistency</li>
+                    <li><strong>Export:</strong> Generate beautiful HTML reports of your session history</li>
+                    <li><strong>Rewards Store:</strong> Earn stars from ratings and spend them on rewards</li>
                 </ul>
             </div>
 
             <!-- Privacy Section -->
             <div class="info-card">
-                <h2>🔒 Privacy & Data</h2>
+                <h2>Privacy & Data</h2>
                 <p><strong>Local Storage Only:</strong> All your session data is stored locally in your browser. We never send it to a server or collect it remotely.</p>
                 <p><strong>Your Control:</strong> You can clear all data at any time using the button below. This action is permanent and cannot be undone.</p>
                 <p><strong>Research Use:</strong> Anonymized feedback from post-session questionnaires may be used for academic research purposes.</p>
@@ -87,7 +87,7 @@
 
             <!-- Data Management Section -->
             <div class="info-card danger-card">
-                <h2>🗑️ Data Management</h2>
+                <h2>Data Management</h2>
                 <p>Clear all sessions, responses, store purchases, and settings from your browser.</p>
                 <button class="btn-danger" onclick={clearAllData}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -103,17 +103,15 @@
 
             <!-- How to Use Section -->
             <div class="info-card">
-                <h2>💡 How to Use</h2>
+                <h2>How to Use</h2>
                 <ol class="how-to-list">
                     <li>Click <strong>"Start New Session"</strong> on the home page</li>
                     <li>Work on your task while the timer runs in the background</li>
                     <li>Click <strong>"End Session"</strong> when you're finished</li>
-                    <li>Add evaluation questions by selecting from templates or creating custom ones</li>
-                    <li>Answer your questions with ratings or text responses</li>
-                    <li>Complete the post-session questionnaire (for research)</li>
+                    <li>Answer the post-session questionnaire using the embedded Google Form</li>
                     <li>View your analytics, search past sessions, and earn stars from your ratings</li>
                 </ol>
-                <p><strong>💡 Pro Tips:</strong></p>
+                <p><strong>Pro Tips:</strong></p>
                 <ul class="tips-list">
                     <li>Use star ratings to earn stars for the rewards store</li>
                     <li>Group related sessions together for easier tracking</li>
@@ -121,6 +119,9 @@
                     <li>Duplicate questions from past sessions to maintain consistency</li>
                     <li>Export your data as HTML reports for external review</li>
                 </ul>
+                <div class="info-note">
+                    <strong>Note:</strong> The post-session questionnaire is now completed via an embedded Google Form for easier research data collection.
+                </div>
             </div>
         </div>
     </div>
