@@ -157,7 +157,7 @@
                 <li><strong>Start a session</strong> - click the button and the timer begins tracking your work time</li>
                 <li><strong>Work on your task</strong> - focus on what you need to do while the timer runs in the background</li>
                 <li><strong>End the session</strong> when you're done or need a break</li>
-                <li><strong>Add evaluation questions</strong> - choose from our templates or create your own custom questions</li>
+                <li><strong>Add evaluation questions</strong> - choose from our pre-defined questions or create your own custom questions</li>
                 <li><strong>Answer your questions</strong> - reflect on your focus, productivity, challenges, and accomplishments</li>
                 <li><strong>View analytics</strong> - see your patterns over time, search past sessions, and track your progress</li>
             </ol>

@@ -187,13 +187,13 @@
 
     .page-header h1 {
         margin: 0 0 0.5rem 0;
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
         font-size: 2.5rem;
     }
 
     .subtitle {
         margin: 0;
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
         font-size: 1.1rem;
         opacity: 0.8;
     }
