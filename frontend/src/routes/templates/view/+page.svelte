@@ -88,8 +88,6 @@
             if (response.ok) {
                 templates = templates.filter(t => t.id !== deleteConfirmModal?.id);
                 closeDeleteConfirm();
-                
-                console.log('Template deleted successfully');
             } else {
                 const errorText = await response.text();
                 error = `Error deleting template: ${errorText}`;
@@ -377,7 +375,7 @@
     .header h2 {
         margin: 0;
         font-size: 1.8rem;
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
     }
 
 
@@ -394,7 +392,7 @@
     .loading {
         text-align: center;
         padding: 3rem;
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
     }
 
 
@@ -410,7 +408,7 @@
 
 
     .btn-back {
-        background: var(--color-bg-secondary);
+        background: var(--color-card-bg);
         color: var(--color-text-primary);
         border: 1px solid var(--color-border);
         padding: 0.6rem 1.2rem;
@@ -450,7 +448,7 @@
     .empty-state {
         text-align: center;
         padding: 3rem;
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
     }
 
 
