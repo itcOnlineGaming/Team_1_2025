@@ -154,12 +154,12 @@
             <p>For this test, imagine you're <strong>studying for an important exam</strong> or working on a project. You want to track your work sessions and understand your productivity patterns.</p>
             
             <ol class="instructions-list">
-                <li><strong>Start a session</strong> - click the button and the timer begins tracking your work time</li>
-                <li><strong>Work on your task</strong> - focus on what you need to do while the timer runs in the background</li>
-                <li><strong>End the session</strong> when you're done or need a break</li>
-                <li><strong>Add evaluation questions</strong> - choose from our pre-defined questions or create your own custom questions</li>
-                <li><strong>Answer your questions</strong> - reflect on your focus, productivity, challenges, and accomplishments</li>
-                <li><strong>View analytics</strong> - see your patterns over time, search past sessions, and track your progress</li>
+                <li><strong>1. Start a session</strong> - click the button and the timer begins tracking your work time</li>
+                <li><strong>2. Work on your task</strong> - focus on what you need to do while the timer runs in the background</li>
+                <li><strong>3. End the session</strong> when you're done or need a break</li>
+                <li><strong>4. Add evaluation questions</strong> - choose from our pre-defined questions or create your own custom questions</li>
+                <li><strong>5. Answer your questions</strong> - reflect on your focus, productivity, challenges, and accomplishments</li>
+                <li><strong>6. View analytics</strong> - see your patterns over time, search past sessions, and track your progress</li>
             </ol>
             
             <div class="pagination-info">Page 2 of 3</div>
