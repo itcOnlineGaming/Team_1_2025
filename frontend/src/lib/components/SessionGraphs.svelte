@@ -263,7 +263,7 @@
         {/if}
     {:else}
         <div class="no-data">
-            <p>📊 No session data available yet</p>
+            <p>No session data available yet</p>
             <p class="no-data-subtext">Complete your first session to see analytics</p>
         </div>
     {/if}

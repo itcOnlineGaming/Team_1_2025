@@ -157,7 +157,7 @@
             </svg>
             Back to Home
         </button>
-        <h1>⭐ Rewards Store</h1>
+        <h1>Rewards Store</h1>
         <div class="star-balance">
             <span class="balance-label">Your Stars:</span>
             <span class="balance-amount">{stars} ⭐</span>

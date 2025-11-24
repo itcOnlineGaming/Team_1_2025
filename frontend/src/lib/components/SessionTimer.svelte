@@ -75,7 +75,6 @@
             Started: {new Date(session.startTime).toLocaleTimeString()}
         </p>
         <p class="detail-item">
-            <span class="detail-icon">�</span>
             You'll add your own questions at the end of this session
         </p>
     </div>

@@ -332,7 +332,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>📊 Session Report</h1>
+        <h1>Session Report</h1>
         <p class="subtitle">Generated on ${new Date().toLocaleString()}</p>
         
         <div class="stats-grid">
@@ -444,7 +444,7 @@
                 <span class="btn-text">Back</span>
             </button>
             <div class="page-title">
-                <h1>📊 Session Results</h1>
+                <h1>Session Results</h1>
                 {#if stats}
                     <p class="subtitle">{stats.totalSessions} session{stats.totalSessions !== 1 ? 's' : ''} tracked</p>
                 {/if}

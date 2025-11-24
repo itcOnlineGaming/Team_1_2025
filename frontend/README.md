@@ -1,38 +1,110 @@
-# sv
+# Team 1 2025 Project
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+## Overview
 
-## Creating a project
+This project is a web application for managing and analyzing session-based questionnaires. It features a Svelte frontend with interactive charts, session analytics, and a modular component structure. The application is organized for maintainability and scalability, supporting multiple sprints and feature folders.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```sh
-# create a new project in the current directory
-npx sv create
+- Session management and analytics
+- Interactive charts for ratings and durations
+- Responsive UI with modern design
+- Modular Svelte components
+- End-to-end and unit testing
+- Storybook stories for UI components
 
-# create a new project in my-app
-npx sv create my-app
-```
+## Folder Structure
 
-## Developing
+- `frontend/` – Main Svelte application
+  - `src/` – Source code
+    - `lib/components/` – Svelte components (e.g., SessionGraphs, TemplateSelector)
+    - `lib/stores/` – Svelte stores for state management
+    - `lib/data/` – Static data (e.g., templates.json)
+    - `routes/` – SvelteKit routes
+    - `stories/` – Storybook stories and assets
+    - `static/` – Static files (robots.txt, etc.)
+  - `build/` – Production build output
+  - `e2e/` – End-to-end Playwright tests
+  - `templates/` – HTML templates
+  - `package.json` – Frontend dependencies and scripts
+  - `README.md` – Frontend documentation
+- `sprint 4/`, `Sprint 8/` – Sprint-specific code and features
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Getting Started
 
-```sh
+### Prerequisites
+
+- Node.js (v18 or newer recommended)
+- npm (comes with Node.js)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/itcOnlineGaming/Team_1_2025
+   cd Team_1_2025/frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Running the Development Server
+
+Start the SvelteKit development server:
+
+```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+The app will be available at `http://localhost:5173/Team_1` (or the port shown in the terminal).
 
-To create a production version of your app:
+### Building for Production
 
-```sh
+To build the frontend for production:
+
+```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+The output will be in the `build/` directory.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+### Running Tests
+
+- **Unit tests:**
+  ```bash
+  npm run test
+  ```
+- **End-to-end tests (Playwright):**
+  ```bash
+  npm run test:e2e
+  ```
+
+### Storybook
+
+To view UI component stories:
+
+```bash
+npm run storybook
+```
+
+## Key Components
+
+- `SessionGraphs.svelte`: Displays session analytics with charts and tables.
+- `TemplateSelector.svelte`: Allows users to select questionnaire templates.
+- `SessionManager.svelte`: Handles session lifecycle and state.
+- `EvaluationQuestionnaire.svelte`: Renders questionnaire forms.
+
+## Customization
+
+- Modify styles in `app.css` and component CSS files.
+- Add new components in `src/lib/components/`.
+- Update session logic in `src/lib/stores/sessionStore.ts`.
+
+## Troubleshooting
+
+- If you encounter issues, ensure Node.js and npm are up to date.
+- Check for missing dependencies with `npm install`.
+- Review the terminal output for error messages.
+
+---
