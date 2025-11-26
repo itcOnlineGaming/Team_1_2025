@@ -1,0 +1,25 @@
+# Node modules
+node_modules/
+
+# Playwright test results and reports
+playwright-report/
+test-results/
+
+# Build output
+build/
+
+# Svelte/Vite cache
+.vite/
+.svelte-kit/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*
+
+# VSCode
+.vscode/
