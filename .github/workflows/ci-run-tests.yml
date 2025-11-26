@@ -1,145 +1,28 @@
-# Purpose:
-#   Build the Svelte frontend and run:
-#     - Optional Vitest unit/component tests (if Vitest is installed)
-#     - Playwright E2E tests in tests
-#   Triggered on pushes to main and manual runs.
-#
-# Assumptions:
-#   - Frontend project is in ./frontend
-#   - Uses npm with package-lock.json
-#   - Vite preview runs on port 4173
-#   - Playwright tests are in frontend/tests (adjust if needed)
-#   - If a project does not use Vitest or Playwright, the relevant steps will skip gracefully.
-
-name: CI · Build and Playwright Tests
+name: Playwright E2E Tests
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  ui-tests:
-    name: Build and Test (Playwright)
+  e2e:
     runs-on: ubuntu-latest
-
     steps:
-      # 1) Check out the repository code
-      #    This pulls the repository contents into the runner.
-      - name: Checkout
-        uses: actions/checkout@v4
-        # If your repo uses Git submodules, uncomment:
-        # with:
-        #   submodules: "true"
-        #   # Use a PAT only if GITHUB_TOKEN cannot access private submodules:
-        #   # token: ${{ secrets.PAT_TOKEN }}
-
-      # 2) Set up Node.js with dependency caching
-      #    - Uses Node 20
-      #    - Caches npm metadata based on frontend/package-lock.json
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: |
-            frontend/package-lock.json
-
-      # 3) Install project dependencies for the frontend
-      #    - Uses npm ci for deterministic, lockfile-based installs.
       - name: Install dependencies
-        working-directory: frontend
-        run: npm ci
-
-      # 4) Cache Playwright browsers to avoid re-downloading on every run
-      #    - Stores browser binaries under ~/.cache/ms-playwright
-      #    - Keyed on OS and package-lock.json (update cache when deps change).
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('Sprint 8/package-lock.json') }}
-
-      # 5) Install Playwright browsers (and OS deps)
-      #    - If browsers are cached, this is a quick no-op.
-      #    - If @playwright/test is not installed, this will fail; that is expected
-      #      for projects that declare Playwright but misconfigure dependencies.
+        run: cd frontend && npm ci
       - name: Install Playwright browsers
-        working-directory: Sprint 8
-        run: npx playwright install --with-deps
-
-      # 6) Build the Svelte app for production
-      #    - Ensures the app compiles before running tests against it.
-      - name: Build app
-        working-directory: Sprint 8
-        run: npm run build
-
-      # 7) Start a Vite preview server in the background
-      #    - Serves the built app on port 4173.
-      #    - --host 0.0.0.0 binds to all interfaces (safe on the runner).
-      #    - Writes the server PID one level up (repo root) as ../preview.pid.
-      - name: Start preview server
-        working-directory: Sprint 8
-        run: |
-          npm run preview -- --host 0.0.0.0 --port 4173 &
-          echo $! > ../preview.pid
-
-      # 8) Wait until the preview port is open before running tests
-      #    - Uses "wait-on" via npx without adding it to package.json.
-      #    - We probe the TCP port only (no hard-coded base path), so this works
-      #      for any app that listens on 4173 regardless of its URL structure.
-      - name: Wait for preview to be ready
-        run: npx -y wait-on tcp:127.0.0.1:4173
-
-      # 9) Run unit/component tests (Vitest), if the project uses Vitest
-      #    - Checks for Vitest in devDependencies.
-      #    - If present: runs tests once in CI mode (no watch).
-      #    - If absent: logs a message and continues without failing the workflow.
-      - name: Run unit/component tests (Vitest if present)
-        working-directory: frontend
-        run: |
-          if npm ls vitest --depth=0 > /dev/null 2>&1; then
-            echo "Vitest detected, running unit/component tests..."
-            npx vitest --run
-          else
-            echo "Vitest not installed; skipping unit/component tests."
-          fi
-
-      # 10) Run Playwright E2E tests
-      #     - Assumes Playwright tests are located in frontend/tests.
-      #     - Uses:
-      #         - "list" reporter for concise CI output
-      #         - "html" reporter to generate ./playwright-report for artifact upload
-      #     - Adjust "tests" if your project uses a different directory.
+        run: cd frontend && npx playwright install --with-deps
       - name: Run Playwright tests
-        working-directory: frontend
-        env:
-          CI: "true" # Many tools (including Playwright) use this to enable CI-safe defaults.
-        run: npx playwright test tests --reporter=list,html
-
-      # 11) Stop the preview server (always runs, even if tests fail)
-      #     - The PID file was created in the repo root as ../preview.pid.
-      #     - We read it, attempt to kill the process, then clean up the file.
-      - name: Stop preview server
-        if: always()
-        working-directory: .
-        run: |
-          if [ -f preview.pid ]; then
-            kill "$(cat preview.pid)" || true
-            rm -f preview.pid
-          fi
-
-      # 12) Upload Playwright HTML report as a CI artifact
-      #     - Allows inspection of E2E results (especially on failure).
-      #     - Path must match the reporter output directory:
-      #         - default for "html" reporter is ./playwright-report
-      #         - here resolved as frontend/playwright-report from repo root.
-      #     - if-no-files-found: ignore prevents failure when no report exists
-      #       (e.g., if Playwright is not used in a given project).
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
+        run: cd frontend && npx playwright test --reporter=html
+      - name: Upload Playwright HTML report
+        uses: actions/upload-artifact@v3
         with:
           name: playwright-report
-          path: frontend/playwright-report
-          if-no-files-found: ignore
+          path: frontend/playwright-report/
