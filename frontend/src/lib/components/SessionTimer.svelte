@@ -12,7 +12,6 @@
     $: minutes = Math.floor((elapsedSeconds % 3600) / 60);
     $: seconds = elapsedSeconds % 60;
     $: formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-    $: progress = (seconds / 60) * 100;
 
     function pad(num: number): string {
         return num.toString().padStart(2, '0');
@@ -36,31 +35,8 @@
     </div>
 
     <div class="timer-wrapper">
-        <svg class="timer-svg" viewBox="0 0 200 200">
-            <circle
-                cx="100"
-                cy="100"
-                r="90"
-                fill="none"
-                stroke="var(--color-bg-secondary)"
-                stroke-width="12"
-            />
-            
-            <circle
-                cx="100"
-                cy="100"
-                r="90"
-                fill="none"
-                stroke="var(--color-accent)"
-                stroke-width="12"
-                stroke-linecap="round"
-                stroke-dasharray="565.48"
-                stroke-dashoffset={565.48 - (565.48 * progress) / 100}
-                transform="rotate(-90 100 100)"
-                class="progress-ring"
-            />
-        </svg>
-        
+        <span class="pulse pulse-1" aria-hidden="true"></span>
+
         <button class="timer-button" on:click={onEnd}>
             <div class="timer-content">
                 <div class="time-display">{formattedTime}</div>
@@ -106,18 +82,7 @@
         width: 300px;
         height: 300px;
         margin: 0 auto 2rem;
-    }
-
-    .timer-svg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-    }
-
-     .progress-ring {
-        transition: stroke-dashoffset 1s linear;
+        overflow: hidden;
     }
 
     .timer-button {
@@ -133,6 +98,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        z-index: 2;
     }
 
     .timer-button:hover {
@@ -193,8 +159,38 @@
             height: 200px;
         }
 
+        .pulse { 
+            width: 200px; 
+            height: 200px; 
+        }
+
         .time-display {
             font-size: 2.5rem;
         }
+    }
+
+    .pulse {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0.001);
+        border: 12px solid var(--timer-ring-color, var(--color-accent));
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        will-change: transform, opacity;
+    }
+
+    .pulse-1 {
+        animation: pulseSpread 1.5s cubic-bezier(1,1,1,1) infinite;
+    }
+
+    @keyframes pulseSpread {
+        0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0.5; }
+        50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0.12; }
+        100% { transform: translate(-50%, -50%) scale(2.6); opacity: 1; }
     }
 </style>
