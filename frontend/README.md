@@ -24,8 +24,6 @@ This project is a web application for managing and analyzing session-based quest
     - `stories/` – Storybook stories and assets
     - `static/` – Static files (robots.txt, etc.)
   - `build/` – Production build output
-  - `e2e/` – End-to-end Playwright tests
-  - `templates/` – HTML templates
   - `package.json` – Frontend dependencies and scripts
   - `README.md` – Frontend documentation
 - `sprint 4/`, `Sprint 8/` – Sprint-specific code and features
@@ -71,13 +69,9 @@ The output will be in the `build/` directory.
 
 ### Running Tests
 
-- **Unit tests:**
-  ```bash
-  npm run test
-  ```
 - **End-to-end tests (Playwright):**
   ```bash
-  npm run test:e2e
+  npm run test
   ```
 
 ### Storybook
