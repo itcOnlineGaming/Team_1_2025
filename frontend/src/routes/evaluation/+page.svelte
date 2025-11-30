@@ -429,7 +429,7 @@
             <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfTDvOwjwJdLorf9uN4iULcCTH-rK1Fv-L6QY0uCMcYV0Dp5Q/viewform?embedded=true" width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
         </div>
         <div class="action-buttons" style="margin-top:2rem;display:flex;gap:1rem;">
-            <button class="btn-secondary btn-full" onclick={() => { showPostTestQuestionnaire = false; }}>
+            <button class="btn-secondary btn-full" onclick={() => { sessionStore.cancelSession(); showPostTestQuestionnaire = false; goto(`${base}/`); }}>
                 Start Another Session
             </button>
             <button class="btn-primary btn-full" onclick={() => { showPostTestQuestionnaire = false; goto(`${base}/?showGraphs=true`); }}>
