@@ -8,7 +8,7 @@ const STARS_KEY = 'stars_balance';
 const REWARDS_KEY = 'rewards_list';
 const PURCHASES_KEY = 'purchases_history';
 
-const initialStars = loadFromLocalStorage<number>(STARS_KEY, 0);
+const initialStars = loadFromLocalStorage<number>(STARS_KEY, 5);
 const initialRewards = loadFromLocalStorage<Reward[]>(REWARDS_KEY, PREDEFINED_REWARDS);
 const initialPurchases = loadFromLocalStorage<PurchaseRecord[]>(PURCHASES_KEY, []);
 
