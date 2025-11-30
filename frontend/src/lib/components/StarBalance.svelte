@@ -12,6 +12,6 @@
 </div>
 
 <style>
-.star-balance{display:flex;align-items:center;gap:12px}
+.star-balance{display:flex;align-items:center;gap:12px;color:var(--color-text-on-dark)}
 .star-balance .value{font-weight:700}
 </style>

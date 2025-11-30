@@ -24,13 +24,17 @@
   }
 
   function submit() {
-    const r = addReward({ name, emoji, description, starCost, image: preview });
-    dispatch('added', { reward: r });
-    // reset
-    name = '';
-    description = '';
-    starCost = 10;
-    preview = '';
+    try {
+      const r = addReward({ name: (name ?? '').toString().trim(), emoji, description, starCost: Number(starCost), image: preview });
+      dispatch('added', { reward: r });
+      // reset
+      name = '';
+      description = '';
+      starCost = 10;
+      preview = '';
+    } catch (e: any) {
+      alert(e?.message || 'Unable to create reward');
+    }
   }
 </script>
 

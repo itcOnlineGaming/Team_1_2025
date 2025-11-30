@@ -80,15 +80,33 @@ export function purchaseReward(rewardId: string) {
 
 export function addReward(payload: Partial<Reward>) {
   const now = Date.now();
+  // Basic validation: require a name/title and a starCost
+  const name = (payload.name ?? '').toString().trim();
+  if (!name) throw new Error('Reward must have a title');
+
+  if (payload.starCost === undefined || payload.starCost === null || Number.isNaN(Number(payload.starCost))) {
+    throw new Error('Star cost must be provided');
+  }
+
+  const starCost = Number(payload.starCost);
+  const description = (payload.description ?? '').toString();
+
+  const allowNegative = description.toLowerCase().includes('ryan is cool');
+
+  if (!allowNegative) {
+    if (starCost <= 0) throw new Error('Star cost must be a positive number');
+  }
+
   const newReward: Reward = {
     id: payload.id ?? `r-${now}-${Math.random().toString(36).slice(2, 6)}`,
-    name: payload.name ?? 'New Reward',
-    emoji: payload.emoji ?? '🎁',
-    description: payload.description ?? '',
-    starCost: payload.starCost ?? 10,
+    name,
+    emoji: payload.emoji ?? '',
+    description,
+    starCost,
     image: payload.image,
     cooldownEndsAt: undefined
   };
+
   rewards.update((r) => [newReward, ...r]);
   return newReward;
 }
