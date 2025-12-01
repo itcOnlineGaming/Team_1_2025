@@ -5,13 +5,14 @@
     export let session: ActiveSession;
     export let onEnd: () => void;
 
-    let elapsedSeconds = 0;
+    // Use the planned duration from the session (in seconds)
+    const COUNTDOWN_DURATION = session.plannedDuration;
+    let remainingSeconds = COUNTDOWN_DURATION;
     let interval: ReturnType<typeof setInterval> | undefined;
 
-    $: hours = Math.floor(elapsedSeconds / 3600);
-    $: minutes = Math.floor((elapsedSeconds % 3600) / 60);
-    $: seconds = elapsedSeconds % 60;
-    $: formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    $: minutes = Math.floor(remainingSeconds / 60);
+    $: seconds = remainingSeconds % 60;
+    $: formattedTime = `${pad(minutes)}:${pad(seconds)}`;
 
     function pad(num: number): string {
         return num.toString().padStart(2, '0');
@@ -19,7 +20,14 @@
 
     onMount(() => {
         interval = setInterval(() => {
-            elapsedSeconds = Math.floor((Date.now() - session.startTime) / 1000);
+            const elapsed = Math.floor((Date.now() - session.startTime) / 1000);
+            remainingSeconds = Math.max(0, COUNTDOWN_DURATION - elapsed);
+            
+            // Auto-end when countdown reaches zero
+            if (remainingSeconds === 0) {
+                if (interval) clearInterval(interval);
+                onEnd();
+            }
         }, 1000);
     });
 
@@ -51,7 +59,11 @@
             Started: {new Date(session.startTime).toLocaleTimeString()}
         </p>
         <p class="detail-item">
-            You'll add your own questions at the end of this session
+            <span class="detail-icon">⏱️</span>
+            Time remaining: {formattedTime}
+        </p>
+        <p class="detail-item">
+            You'll answer the evaluation question when the timer ends
         </p>
     </div>
 </div>

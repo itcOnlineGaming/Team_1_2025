@@ -10,12 +10,64 @@
     interface EvaluationQuestion {
         id: string;
         text: string;
-        type: 'text' | 'rating' | 'textarea';
+        type: 'text' | 'rating' | 'textarea' | 'select';
         response?: string;
         rating?: number;
+        options?: string[];
     }
 
-    // Predefined question templates that users can add
+    const distractionTemplateQuestions: EvaluationQuestion[] = [
+        {
+            id: 'distraction',
+            text: 'Was the participant distracted during the task?',
+            type: 'select',
+            options: ['Yes', 'No'],
+            response: ''
+        },
+        {
+            id: 'distraction_frequency',
+            text: 'How often did distractions occur?',
+            type: 'select',
+            options: ['Never', 'Rarely', 'Occasionally', 'Frequently', 'Constantly'],
+            response: ''
+        },
+        {
+            id: 'distraction_type',
+            text: 'What type of distraction was most common?',
+            type: 'select',
+            options: ['None', 'Environmental (noise, people)', 'Digital (phone, notifications)', 'Internal (thoughts, wandering mind)', 'Other'],
+            response: ''
+        },
+        {
+            id: 'focus_level',
+            text: 'How would you rate the participant\'s overall focus level?',
+            type: 'rating',
+            rating: 0,
+            response: ''
+        },
+        {
+            id: 'engagement',
+            text: 'How engaged was the participant with the task?',
+            type: 'rating',
+            rating: 0,
+            response: ''
+        },
+        {
+            id: 'productivity',
+            text: 'How productive was the session?',
+            type: 'rating',
+            rating: 0,
+            response: ''
+        },
+        {
+            id: 'notes',
+            text: 'Additional observations or notes about the session:',
+            type: 'textarea',
+            response: ''
+        }
+    ];
+
+    // Predefined question templates that users can add to any evaluation
     const questionTemplates = [
         { text: 'How productive did you feel during this session?', type: 'rating' as const },
         { text: 'What went well during this session?', type: 'textarea' as const },
@@ -53,21 +105,26 @@
     let selectedQuestionIndex = $state<number | null>(null);
     let customQuestionText = $state('');
     let customQuestionType = $state<'text' | 'rating' | 'textarea'>('text');
+    let isBlankTemplate = $state(false);
 
     onMount(() => {
         const loadSession = () => {
             const unsubscribe = sessionStore.activeSession.subscribe((session) => {
                 activeSession = session;
                 
-                // Load questions from active session if they exist
-                if (session && session.questions && session.questions.length > 0) {
-                    questions = session.questions.map(q => ({
-                        id: q.id,
-                        text: q.label || '',
-                        type: q.stars ? 'rating' as const : (q.type === 'textarea' ? 'textarea' as const : 'text' as const),
-                        response: '',
-                        rating: q.stars ? 0 : undefined
-                    }));
+                // Check which template was selected
+                if (session?.templateId === 'none') {
+                    // No template - start blank
+                    isBlankTemplate = true;
+                    questions = [];
+                } else if (session?.templateId === 'distraction-evaluation') {
+                    // Load distraction template questions
+                    isBlankTemplate = false;
+                    questions = JSON.parse(JSON.stringify(distractionTemplateQuestions));
+                } else {
+                    // Default to blank if no templateId
+                    isBlankTemplate = true;
+                    questions = [];
                 }
             });
 
@@ -94,7 +151,7 @@
             const newQuestion: EvaluationQuestion = {
                 id: `q-${Date.now()}-${Math.random()}`,
                 text: template.text,
-                type: template.type,
+                type: template.type === 'rating' ? 'rating' : (template.type === 'textarea' ? 'textarea' : 'text'),
                 response: '',
                 rating: template.type === 'rating' ? 0 : undefined
             };
@@ -154,13 +211,16 @@
         const unanswered = questions.filter(q => {
             if (q.type === 'rating') {
                 return !q.rating || q.rating === 0;
+            } else if (q.type === 'textarea') {
+                // Textarea is optional for notes field
+                return false;
             } else {
                 return !q.response || q.response.trim() === '';
             }
         });
         
         if (unanswered.length > 0) {
-            alert(`Please answer all questions before submitting. ${unanswered.length} question(s) still need responses.`);
+            alert(`Please answer all required questions before submitting. ${unanswered.length} question(s) still need responses.`);
             return;
         }
         
@@ -185,6 +245,7 @@
         isSubmitting = false;
         showPostTestQuestionnaire = true;
     };
+
 
     function handlePostTestSubmit() {
         // Validate that all rating questions have been answered (not 0)
@@ -271,88 +332,114 @@
         </div>
 
         <form onsubmit={onSubmit} class="evaluation-form">
-            <!-- Add Questions Section -->
-            <div class="add-questions-section">
-                <h2>Add Evaluation Questions</h2>
-                <p class="instruction-text">Add as many or as few questions as you'd like for this evaluation.</p>
-                
-                <!-- Predefined Questions Dropdown -->
-                <div class="question-adder">
-                    <div class="dropdown-container">
-                        <select 
-                            bind:value={selectedQuestionIndex}
-                            onchange={addPredefinedQuestion}
-                            class="question-select"
-                        >
-                            <option value={null}>+ Select a question to add...</option>
-                            {#each questionTemplates as template, i}
-                                <option value={i}>
-                                    {template.text} ({template.type === 'rating' ? 'Rating' : template.type === 'textarea' ? 'Long text' : 'Short text'})
-                                </option>
-                            {/each}
-                        </select>
-                    </div>
-
-                    <!-- Custom Question Input -->
-                    <div class="custom-question">
-                        <div class="or-divider">
-                            <span>OR</span>
-                        </div>
-                        <h3>Add a Custom Question</h3>
-                        <div class="custom-inputs">
-                            <input 
-                                type="text"
-                                bind:value={customQuestionText}
-                                placeholder="Enter your custom question..."
-                                class="custom-input"
-                            />
-                            <div class="type-selector">
-                                <label>
-                                    <input type="radio" bind:group={customQuestionType} value="text" />
-                                    Short Text
-                                </label>
-                                <label>
-                                    <input type="radio" bind:group={customQuestionType} value="textarea" />
-                                    Long Text
-                                </label>
-                                <label>
-                                    <input type="radio" bind:group={customQuestionType} value="rating" />
-                                    Rating (1-5)
-                                </label>
-                            </div>
-                            <button 
-                                type="button"
-                                onclick={addCustomQuestion}
-                                class="btn-add-custom"
-                                disabled={!customQuestionText.trim()}
+            <!-- Add Questions Section - Only show if blank template -->
+            {#if isBlankTemplate}
+                <div class="add-questions-section">
+                    <h2>Add Evaluation Questions</h2>
+                    <p class="instruction-text">Add as many or as few questions as you'd like for this evaluation.</p>
+                    
+                    <!-- Predefined Questions Dropdown -->
+                    <div class="question-adder">
+                        <div class="dropdown-container">
+                            <select 
+                                bind:value={selectedQuestionIndex}
+                                onchange={addPredefinedQuestion}
+                                class="question-select"
                             >
-                                + Add Custom Question
-                            </button>
+                                <option value={null}>+ Select a question to add...</option>
+                                {#each questionTemplates as template, i}
+                                    <option value={i}>
+                                        {template.text} ({template.type === 'rating' ? 'Rating' : template.type === 'textarea' ? 'Long text' : 'Short text'})
+                                    </option>
+                                {/each}
+                            </select>
+                        </div>
+
+                        <!-- Custom Question Input -->
+                        <div class="custom-question">
+                            <div class="or-divider">
+                                <span>OR</span>
+                            </div>
+                            <h3>Add a Custom Question</h3>
+                            <div class="custom-inputs">
+                                <input 
+                                    type="text"
+                                    bind:value={customQuestionText}
+                                    placeholder="Enter your custom question..."
+                                    class="custom-input"
+                                />
+                                <div class="type-selector">
+                                    <label>
+                                        <input type="radio" bind:group={customQuestionType} value="text" />
+                                        Short Text
+                                    </label>
+                                    <label>
+                                        <input type="radio" bind:group={customQuestionType} value="textarea" />
+                                        Long Text
+                                    </label>
+                                    <label>
+                                        <input type="radio" bind:group={customQuestionType} value="rating" />
+                                        Rating (1-5)
+                                    </label>
+                                </div>
+                                <button 
+                                    type="button"
+                                    onclick={addCustomQuestion}
+                                    class="btn-add-custom"
+                                    disabled={!customQuestionText.trim()}
+                                >
+                                    + Add Custom Question
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            {/if}
 
             <!-- Questions List -->
             {#if questions.length > 0}
                 <div class="questions-list">
-                    <h2>Your Evaluation ({questions.length} question{questions.length !== 1 ? 's' : ''})</h2>
+                    <h2>{isBlankTemplate ? `Your Evaluation (${questions.length} question${questions.length !== 1 ? 's' : ''})` : 'Session Evaluation'}</h2>
+                    {#if !isBlankTemplate}
+                        <p class="instruction-text">Please answer the following questions about the session.</p>
+                    {/if}
+                    
                     {#each questions as question, index (question.id)}
                         <div class="question-card">
                             <div class="question-header">
                                 <span class="question-number">Question {index + 1}</span>
-                                <button 
-                                    type="button"
-                                    onclick={() => removeQuestion(question.id)}
-                                    class="btn-remove"
-                                    aria-label="Remove question"
-                                >
-                                    ✕
-                                </button>
+                                {#if isBlankTemplate}
+                                    <button 
+                                        type="button"
+                                        onclick={() => removeQuestion(question.id)}
+                                        class="btn-remove"
+                                        aria-label="Remove question"
+                                    >
+                                        ✕
+                                    </button>
+                                {/if}
                             </div>
-                            <div class="question-label">{question.text}</div>
+                            <div class="question-label">
+                                {question.text}
+                                {#if question.type === 'textarea' && question.id === 'notes'}
+                                    <span class="optional-badge">(Optional)</span>
+                                {/if}
+                            </div>
                             
-                            {#if question.type === 'rating'}
+                            {#if question.type === 'select' && question.options}
+                                <div class="select-input">
+                                    <select
+                                        bind:value={question.response}
+                                        oninput={(e) => updateResponse(question.id, (e.target as HTMLSelectElement).value)}
+                                        class="response-select"
+                                    >
+                                        <option value="">-- Select an answer --</option>
+                                        {#each question.options as option}
+                                            <option value={option}>{option}</option>
+                                        {/each}
+                                    </select>
+                                </div>
+                            {:else if question.type === 'rating'}
                                 <div class="rating-input">
                                     <div class="stars">
                                         {#each Array(5) as _, i}
@@ -426,7 +513,7 @@
 <Popup bind:isOpen={showPostTestQuestionnaire} title="User Study Feedback" showCloseButton={false}>
     <div class="popup-inner wide-popup">
         <div class="google-form-container" style="width:100%;max-width:1000px;margin:auto;">
-            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfTDvOwjwJdLorf9uN4iULcCTH-rK1Fv-L6QY0uCMcYV0Dp5Q/viewform?embedded=true" width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfTDvOwjwJdLorf9uN4iULcCTH-rK1Fv-L6QY0uCMcYV0Dp5Q/viewform?embedded=true" width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0" title="User Study Feedback Form">Loading…</iframe>
         </div>
         <div class="action-buttons" style="margin-top:2rem;display:flex;gap:1rem;">
             <button class="btn-secondary btn-full" onclick={() => { sessionStore.cancelSession(); showPostTestQuestionnaire = false; goto(`${base}/`); }}>
@@ -580,7 +667,7 @@
     .question-select:focus {
         outline: none;
         border-color: var(--color-accent);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 0 3px rgba(123, 104, 166, 0.1);
     }
 
     .or-divider {
@@ -641,7 +728,7 @@
     .custom-input:focus {
         outline: none;
         border-color: var(--color-accent);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 0 3px rgba(123, 104, 166, 0.1);
     }
 
     .type-selector {
@@ -694,7 +781,7 @@
 
     .questions-list h2 {
         margin: 0 0 1rem 0;
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
         font-size: 1.4rem;
     }
 
@@ -753,6 +840,40 @@
         margin-bottom: 1rem;
     }
 
+    .optional-badge {
+        display: inline-block;
+        margin-left: 0.5rem;
+        padding: 0.125rem 0.5rem;
+        background: rgba(232, 179, 57, 0.2);
+        color: var(--color-warning);
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid var(--color-warning);
+    }
+
+    .select-input {
+        margin-top: 0.75rem;
+    }
+
+    .response-select {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid var(--color-border);
+        border-radius: 8px;
+        background: var(--color-input-bg);
+        color: var(--color-text-primary);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .response-select:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(123, 104, 166, 0.1);
+    }
+
     .rating-input {
         display: flex;
         align-items: center;
@@ -770,16 +891,17 @@
         font-size: 2rem;
         cursor: pointer;
         transition: all 0.2s;
-        color: var(--color-text-secondary);
+        color: var(--color-border);
         padding: 0;
     }
 
     .star.filled {
-        color: var(--color-warning, #FFD700);
+        color: var(--color-warning);
     }
 
     .star:hover {
         transform: scale(1.2);
+        color: var(--color-warning);
     }
 
     .rating-value {
@@ -805,7 +927,7 @@
     .response-textarea:focus {
         outline: none;
         border-color: var(--color-accent);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 0 3px rgba(123, 104, 166, 0.1);
     }
 
     .response-textarea {
@@ -860,9 +982,10 @@
 
     .loading p {
         font-size: 1.1rem;
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
         margin: 0;
     }
+    
     .submitting-overlay {
         position: fixed;
         top: 0;
@@ -912,145 +1035,21 @@
         }
     }
 
-    /* Post-test questionnaire styles */
-    .popup-inner {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .popup-inner h2 {
-        margin: 0 0 1rem 0;
-        color: var(--color-text-primary);
-    }
-
-    .popup-inner p {
-        margin: 0 0 1.5rem 0;
-        line-height: 1.6;
-        color: var(--color-text-primary);
-    }
-
-    .question-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .question-label {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 600;
-        color: var(--color-text-primary);
-        margin-bottom: 0.75rem;
-        font-size: 0.95rem;
-    }
-
-    .rating-value {
-        background: var(--color-accent);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 12px;
-        font-size: 0.875rem;
-        font-weight: 700;
-    }
-
-    .slider {
+    .popup-inner.wide-popup {
+        max-width: 1100px;
         width: 100%;
-        height: 8px;
-        border-radius: 5px;
-        background: linear-gradient(to right, var(--color-danger) 0%, var(--color-warning) 50%, var(--color-success) 100%);
-        outline: none;
-        cursor: pointer;
-        -webkit-appearance: none;
-        appearance: none;
+        margin: 0 auto;
     }
 
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: var(--color-card-bg);
-        border: 3px solid var(--color-accent);
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s ease;
-    }
-
-    .slider::-webkit-slider-thumb:hover {
-        transform: scale(1.2);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    .slider::-moz-range-thumb {
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: var(--color-card-bg);
-        border: 3px solid var(--color-accent);
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s ease;
-    }
-
-    .slider::-moz-range-thumb:hover {
-        transform: scale(1.2);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-
-    .slider-labels {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 0.5rem;
-        font-size: 0.8rem;
-        color: var(--color-text-secondary);
-        font-weight: 500;
-    }
-
-    .input-field {
+    .google-form-container {
+        max-width: 1050px;
         width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--color-border);
-        border-radius: 4px;
-        font-size: 0.95rem;
-        font-family: inherit;
-        background: var(--color-input-bg);
-        color: var(--color-text-primary);
-        resize: vertical;
-    }
-
-    .input-field:focus {
-        outline: none;
-        border-color: var(--color-accent);
-        box-shadow: 0 0 0 3px rgba(123, 104, 166, 0.1);
-    }
-
-    .pagination-info {
-        text-align: center;
-        color: var(--color-text-secondary);
-        font-size: 0.9rem;
-        margin: 1.5rem 0 1rem;
-        font-weight: 500;
-    }
-
-    .button-group {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .button-group button {
-        flex: 1;
-    }
-
-    .btn-large {
-        padding: 1rem 1.5rem;
-        font-size: 1.05rem;
+        margin: 0 auto;
     }
 
     @media (max-width: 768px) {
         .page-container {
-            padding-bottom: 6rem; /* Add padding for bottom nav */
+            padding-bottom: 6rem;
         }
 
         .btn-back {
@@ -1072,22 +1071,5 @@
             padding: 1.5rem 2rem;
             margin: 1rem;
         }
-    }
-
-    :global(.popup-modal) {
-        max-width: 1200px !important;
-        width: 100vw !important;
-    }
-
-    .popup-inner.wide-popup {
-        max-width: 1100px;
-        width: 100%;
-        margin: 0 auto;
-    }
-
-    .google-form-container {
-        max-width: 1050px;
-        width: 100%;
-        margin: 0 auto;
     }
 </style>

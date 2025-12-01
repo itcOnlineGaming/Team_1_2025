@@ -4,7 +4,9 @@
     import { sessionStore } from '$lib/stores/sessionStore';
     import TaskCard from './TaskCard.svelte';
     import Popup from './Popup.svelte';
+    import TemplateSelectorModal from './TemplateSelectorModal.svelte';
     import type { Session } from '$lib/stores/sessionStore';
+    import { evaluationTemplates } from '$lib/data/evaluationTemplates';
     import { goto } from '$app/navigation';
     import { base } from '$app/paths';
 
@@ -12,6 +14,8 @@
     let tasks: Task[] = [];
     let loading = true;
     let showCreate = false;
+    let showTemplateSelector = false;
+    let selectedTask: Task | null = null;
     let newName = '';
     let newGoal = '';
     let nameInput: HTMLInputElement | null = null;
@@ -64,18 +68,36 @@ $: if (!showCreate) {
 }
 
     function startSessionFromCard(task: Task) {
-        // set loading for the clicked task and start a session linked to it
-        starting = { ...starting, [task.id]: true };
+        // Show template selector instead of starting directly
+        selectedTask = task;
+        showTemplateSelector = true;
+    }
+
+    function handleTemplateSelect(template: any, duration: number) {
+        if (!selectedTask) return;
+        
+        showTemplateSelector = false;
+        starting = { ...starting, [selectedTask.id]: true };
+        
         try {
-            const template = { id: 'direct', name: task.name, questions: [] };
-            sessionStore.startSession(template, { id: task.id, name: task.name });
+            sessionStore.startSession(
+                { id: template.id, name: template.name, questions: [] },
+                duration,
+                { id: selectedTask.id, name: selectedTask.name }
+            );
             // Navigate to home page where the active session timer will be displayed
             goto(`${base}/`);
         } catch (err) {
             console.error('Failed to start session for task', err);
         } finally {
-            starting = { ...starting, [task.id]: false };
+            starting = { ...starting, [selectedTask.id]: false };
+            selectedTask = null;
         }
+    }
+
+    function cancelTemplateSelection() {
+        showTemplateSelector = false;
+        selectedTask = null;
     }
 
     function deleteTask(task: Task) {
@@ -241,6 +263,13 @@ $: if (!showCreate) {
                         </form>
                     </Popup>
                 {/if}
+
+                <TemplateSelectorModal 
+                    bind:isOpen={showTemplateSelector}
+                    templates={evaluationTemplates}
+                    onSelect={handleTemplateSelect}
+                    onCancel={cancelTemplateSelection}
+                />
             </div>
 
             <!-- Always-visible floating create button (bottom-centered) -->

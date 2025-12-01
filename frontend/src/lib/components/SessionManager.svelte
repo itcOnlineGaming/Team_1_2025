@@ -5,9 +5,7 @@
     import EvaluationQuestionnaire from '$lib/components/EvaluationQuestionnaire.svelte';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
     import type { Question } from '$lib/components/EvaluationQuestionnaire.svelte';
-    import templatesData from '$lib/data/templates.json';
     import { get } from 'svelte/store';
-
 
     interface Template {
         id: string;
@@ -16,7 +14,23 @@
         questions: Question[];
     }
 
-    let templates: Template[] = templatesData.templates as Template[];
+    // Only one fixed template: Distraction
+    const distractionTemplate: Template = {
+        id: 'distraction',
+        name: 'Distraction',
+        description: 'Evaluate distraction during the session.',
+        questions: [
+            {
+                id: 'distraction',
+                label: 'Was the participant distracted during the task?',
+                type: 'select',
+                options: ['Yes', 'No'],
+                required: true
+            }
+        ]
+    };
+
+    let templates: Template[] = [distractionTemplate];
     let showTemplateSelector = false;
     let showQuestionnaire = false;
     let showGraphs = false;
@@ -28,8 +42,9 @@
         showTemplateSelector = true;
     }
 
-    function handleTemplateSelect(template: Template) {
-        sessionStore.startSession(template);
+    function handleTemplateSelect(template: Template, duration: number) {
+        // Always use the distraction template with specified duration
+        sessionStore.startSession(template, duration);
         showTemplateSelector = false;
     }
 
@@ -88,7 +103,7 @@
             on:keydown={(e) => { if (e.key === 'Escape') { showTemplateSelector = false; } }}
         >
             <div class="modal-header">
-                <h2>Select a Template</h2>
+                <h2>Select Evaluation Template</h2>
                 <button class="btn-close" on:click={() => showTemplateSelector = false}>✕</button>
             </div>
             <div class="modal-body">
