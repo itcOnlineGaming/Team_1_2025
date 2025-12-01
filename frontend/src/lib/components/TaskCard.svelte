@@ -3,6 +3,8 @@
     import { sessionStore } from '$lib/stores/sessionStore';
     import type { Session } from '$lib/stores/sessionStore';
     import { createEventDispatcher, onDestroy } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { base } from '$app/paths';
 
     export let task: Task;
     export let loading = false;
@@ -10,7 +12,8 @@
     const dispatch = createEventDispatcher();
 
     function onStart() { dispatch('start', { task }); }
-    function onEdit() { dispatch('edit', { task }); }
+    function onEdit() { goto(`${base}/tasks/${task.id}`); }
+    function onDelete() { dispatch('delete', { task }); }
 
     function truncate(text?: string, max = 120) { if (!text) return ''; return text.length > max ? text.slice(0, max-1) + '…' : text; }
 
@@ -57,10 +60,25 @@
     // cleanup
     onDestroy(() => unsub());
 
+    let isMobile = typeof window !== 'undefined' ? window.innerWidth <= 720 : false;
+
+    function handleTaskRowClick() {
+        if (isMobile) {
+            onEdit();
+        }
+    }
+
+    function handleKeyPress(e: KeyboardEvent) {
+        if (isMobile && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            onEdit();
+        }
+    }
+
 </script>
 
 <article class="task-card card" aria-label="Task: {task.name}. Hover to reveal actions">
-    <div class="task-row">
+    <div class="task-row" role="button" tabindex={isMobile ? 0 : -1} on:click={handleTaskRowClick} on:keydown={handleKeyPress}>
         <div class="cell name">
             <div class="task-title">{task.name}</div>
         </div>
@@ -103,21 +121,26 @@
     <!-- Overlay actions inside card -->
     <div class="overlay" aria-hidden={!loading}>
         <div class="actions" role="group" aria-label="Task actions">
-            <button class="btn-primary start-btn" on:click={onStart} disabled={loading} aria-busy={loading}>
-                {#if loading}
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="white" stroke-opacity="0.3" stroke-width="4"></circle><path d="M22 12A10 10 0 1 1 12 2" stroke="white" stroke-width="4" stroke-linecap="round"></path></svg>
-                    &nbsp;Starting…
-                {:else}
-                    ▶ Start Session
-                {/if}
-            </button>
-            <button class="btn-secondary edit-btn" on:click={onEdit}>✎ Edit</button>
+            {#if !task.completedAt}
+                <button class="btn-primary start-btn" on:click={onStart} disabled={loading} aria-busy={loading}>
+                    {#if loading}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="white" stroke-opacity="0.3" stroke-width="4"></circle><path d="M22 12A10 10 0 1 1 12 2" stroke="white" stroke-width="4" stroke-linecap="round"></path></svg>
+                        &nbsp;Starting…
+                    {:else}
+                        ▶ Start Session
+                    {/if}
+                </button>
+            {/if}
+            <button class="btn-secondary detail-btn" on:click={onEdit}>📋 Details</button>
+            {#if !task.completedAt}
+                <button class="btn-secondary delete-btn" on:click={onDelete} aria-label="Delete task">🗑 Delete</button>
+            {/if}
         </div>
     </div>
 </article>
 
     <style>
-        .task-card { display:flex; flex-direction:column; justify-content:space-between; min-height:84px; position:relative; color: var(--color-text-primary); transition: background .25s ease, color .25s ease, border-color .25s ease; overflow:hidden; }
+        .task-card { display:flex; flex-direction:column; justify-content:space-between; min-height:84px; position:relative; color: var(--color-text-primary); transition: background .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease; overflow:hidden; box-shadow: 0 2px 8px rgba(123, 104, 166, 0.15); }
 
         /* Row grid: name column takes half, stats grouped on right */
         /* bubble sizing - controls the height and scale of contents */
@@ -135,6 +158,7 @@
         .cell.name .task-title {
             font-weight:700;
             margin:0;
+            color: var(--color-accent);
             /* responsive but clamped size so it visually matches the stat 'bubble' height */
             font-size: clamp(1rem, 1.6vw + 0.8rem, 1.25rem);
             line-height: 1.05;
@@ -157,7 +181,9 @@
         .task-card:hover .task-title,
         .task-card:focus-visible .task-title { color: var(--color-primary); }
         .start-btn { flex:0 0 auto; padding: .35rem .7rem; font-size: .9rem; }
-        .edit-btn { flex:0 0 auto; }
+        .detail-btn { flex:0 0 auto; }
+        .delete-btn { flex:0 0 auto; background: #dc2626; border-color: #dc2626; color: white; }
+        .delete-btn:hover { background: #b91c1c; border-color: #b91c1c; }
 
         /* Keep one-row layout even on mobile — compact the stat cells */
         @media (max-width: 720px) {
@@ -166,8 +192,8 @@
             .cell.count, .cell.rating, .cell.avgtime { flex-direction:column; gap: .2rem; }
             .cell .icon { margin-bottom:2px; opacity:0.95; display:flex; align-items:center; justify-content:center; }
             .cell .icon svg { width: clamp(16px, calc(var(--bubble-h) * 0.22), 24px); height: clamp(16px, calc(var(--bubble-h) * 0.22), 24px); }
-            .overlay { background:rgba(245,240,232,0); }
-            .task-card:hover .overlay, .task-card:focus-visible .overlay { background:rgba(245,240,232,0.85); }
+            .overlay { display:none; }
+            .task-card:hover .overlay, .task-card:focus-visible .overlay { background:rgba(245,240,232,0); }
             .overlay .actions { flex-direction:column; }
         }
     </style>

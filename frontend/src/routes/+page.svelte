@@ -1,10 +1,10 @@
 <script lang="ts">
     import Popup from '$lib/components/Popup.svelte';
     import SessionTimer from '$lib/components/SessionTimer.svelte';
-    import Tasks from '$lib/components/Tasks.svelte';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
     import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
     import { sessionStore } from '$lib/stores/sessionStore';
+    import { taskStore, type Task } from '$lib/stores/taskStore';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import { base } from '$app/paths';
@@ -14,11 +14,23 @@
     let showGraphs = $state(false);
     let showEndTestPrompt = $state(false);
     let activeSession = $state<any>(null);
+    let tasks = $state<Task[]>([]);
+    let allSessions = $state<any[]>([]);
 
     onMount(() => {
         // Subscribe to active session changes
-        const unsubscribe = sessionStore.activeSession.subscribe((session) => {
+        const unsubscribeSession = sessionStore.activeSession.subscribe((session) => {
             activeSession = session;
+        });
+
+        // Subscribe to tasks
+        const unsubscribeTasks = taskStore.subscribe((t) => {
+            tasks = t;
+        });
+
+        // Subscribe to sessions
+        const unsubscribeSessions = sessionStore.sessions.subscribe((s) => {
+            allSessions = s;
         });
 
         // Check URL params for showGraphs
@@ -29,7 +41,11 @@
             window.history.replaceState({}, '', '/');
         }
 
-        return unsubscribe;
+        return () => {
+            unsubscribeSession();
+            unsubscribeTasks();
+            unsubscribeSessions();
+        };
     });
 
     function handleStartSession() {
@@ -71,11 +87,31 @@
         goto(`${base}/results`);
     }
 
-    // Obfuscated email to prevent scraping
-    function openContact() {
-        const parts = ['C00283423', 'setu', 'ie'];
-        const email = parts[0] + '@' + parts[1] + '.' + parts[2];
-        window.location.href = 'mailto:' + email;
+    // Get 3 most recent in-progress tasks based on latest session time
+    function getRecentInProgressTasks() {
+        const inProgressTasks = tasks.filter(t => !t.completedAt);
+        
+        const tasksWithLatestSession = inProgressTasks.map(task => {
+            const taskSessions = allSessions.filter(s => s.taskId === task.id);
+            const latestSession = taskSessions.length > 0 
+                ? taskSessions.reduce((latest, current) => 
+                    current.startTime > latest.startTime ? current : latest
+                )
+                : null;
+            return {
+                task,
+                latestSessionTime: latestSession?.startTime || 0
+            };
+        });
+        
+        return tasksWithLatestSession
+            .sort((a, b) => b.latestSessionTime - a.latestSessionTime)
+            .slice(0, 3)
+            .map(item => item.task);
+    }
+
+    function goToTasks() {
+        goto(`${base}/tasks`);
     }
 </script>
 
@@ -89,6 +125,14 @@
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
             Store
+        </button>
+        <button class="nav-btn" onclick={() => goto(`${base}/tasks`)}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            Tasks
         </button>
         <button class="nav-btn" onclick={() => goto(`${base}/results`)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -118,10 +162,31 @@
         {:else if !showGraphs && !showEndTestPrompt}
             <h1>Activity Tracker</h1>
             <p class="subtitle">Track your work sessions for tasks and provide yourself feedback to help work towards completing your chosen goal</p>
-            <!-- <button class="btn-primary btn-large start-session-btn" onclick={openWelcomePopup}>
-                🎯 Start New Session
-            </button> -->
-            <Tasks/>
+            
+            <div class="recent-tasks-section">
+                <h2>Your Recent In Progress Tasks</h2>
+                {#if getRecentInProgressTasks().length === 0}
+                    <div class="empty-state-card">
+                        <p>No in-progress tasks yet</p>
+                        <p class="empty-subtitle">Create a new task to get started and see your tasks appear here</p>
+                        <button class="btn-primary" onclick={goToTasks}>Create Your First Task</button>
+                    </div>
+                {:else}
+                    <div class="recent-tasks-list">
+                        {#each getRecentInProgressTasks() as task}
+                            <div class="recent-task-item" onclick={() => goto(`${base}/tasks/${task.id}`)}>
+                                <h3>{task.name}</h3>
+                                {#if task.goal}
+                                    <p class="task-goal">{task.goal}</p>
+                                {/if}
+                            </div>
+                        {/each}
+                    </div>
+                    <div class="view-all-container">
+                        <button class="btn-secondary" onclick={goToTasks}>View All Tasks</button>
+                    </div>
+                {/if}
+            </div>
         {/if}
     </div>
     
@@ -585,5 +650,107 @@
             padding: 1rem;
             padding-bottom: 5rem; /* Add padding to account for bottom nav */
         }
+    }
+
+    .recent-tasks-section {
+        width: 100%;
+        max-width: 1200px;
+        margin-top: 2rem;
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(79, 73, 115, 0.1);
+    }
+
+    .recent-tasks-section h2 {
+        color: var(--color-accent);
+        font-size: 1.5rem;
+        margin: 0 0 1.5rem 0;
+        text-align: center;
+    }
+
+    .empty-state-card {
+        background: var(--color-bg-secondary);
+        border: 2px dashed var(--color-border);
+        border-radius: 8px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+
+    .empty-state-card p {
+        margin: 0.5rem 0;
+        color: var(--color-text-secondary);
+        font-size: 1rem;
+    }
+
+    .empty-state-card .empty-subtitle {
+        font-style: italic;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state-card .btn-primary {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .recent-tasks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--color-bg-secondary);
+    }
+
+    .recent-task-item {
+        background: var(--color-bg-secondary);
+        border: none;
+        border-bottom: 1px solid var(--color-border);
+        border-radius: 0;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .recent-task-item:last-child {
+        border-bottom: none;
+    }
+
+    .recent-task-item:hover {
+        background: var(--color-card-bg);
+    }
+
+    .recent-task-item h3 {
+        margin: 0;
+        color: var(--color-accent);
+        font-size: 1.05rem;
+        grid-column: 1 / -1;
+    }
+
+    .recent-task-item .task-goal {
+        margin: 0;
+        color: var(--color-text-secondary);
+        font-size: 0.9rem;
+        font-style: italic;
+        grid-column: 1 / -1;
+    }
+
+    .view-all-container {
+        display: flex;
+        justify-content: center;
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-border);
+        margin-top: 1rem;
+    }
+
+    .view-all-container .btn-secondary {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.95rem;
     }
 </style>

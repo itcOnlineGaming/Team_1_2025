@@ -181,6 +181,9 @@ function createSessionStore() {
 			sessions.update((s) =>
 				s.map((session) => (session.id === sessionId ? { ...session, ...updates } : session))
 			);
+		},
+		deleteSessionsByTaskId: (taskId: string) => {
+			sessions.update((s) => s.filter((session) => session.taskId !== taskId));
 		}
 	};
 }

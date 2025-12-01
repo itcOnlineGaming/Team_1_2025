@@ -5,6 +5,8 @@ export interface Task {
     name: string;
     goal?: string;
     createdAt: number;
+    completedAt?: number;
+    result?: Record<string, any>;
 }
 
 function createTaskStore() {
@@ -42,6 +44,9 @@ function createTaskStore() {
         updateTask: (taskId: string, updates: Partial<Task>) =>
             update((list) => list.map((t) => (t.id === taskId ? { ...t, ...updates } : t))),
         removeTask: (taskId: string) => update((list) => list.filter((t) => t.id !== taskId)),
+        reorderTasks: (reorderedTasks: Task[]) => set(reorderedTasks),
+        completeTask: (taskId: string, result?: Record<string, any>) =>
+            update((list) => list.map((t) => (t.id === taskId ? { ...t, completedAt: Date.now(), result } : t))),
         clearAll: () => set([])
     };
 }
