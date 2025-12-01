@@ -160,8 +160,8 @@
                 />
                 <div class="slider-labels">
                     <span>1 min</span>
-                    <span>30 min</span>
-                    <span>1 hr</span>
+                    <span>40 min</span>
+                     <span>1hr 20mins</span>
                     <span>2 hrs</span>
                 </div>
             </div>
