@@ -1,6 +1,7 @@
 <script lang="ts">
     import Popup from '$lib/components/Popup.svelte';
     import SessionTimer from '$lib/components/SessionTimer.svelte';
+    import Tasks from '$lib/components/Tasks.svelte';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
     import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
     import { sessionStore } from '$lib/stores/sessionStore';
@@ -115,11 +116,12 @@
                 onEnd={handleEndSession}
             />
         {:else if !showGraphs && !showEndTestPrompt}
-            <h1>Session Tracker</h1>
-            <p class="subtitle">Track your work sessions and provide feedback</p>
-            <button class="btn-primary btn-large start-session-btn" onclick={openWelcomePopup}>
+            <h1>Activity Tracker</h1>
+            <p class="subtitle">Track your work sessions for tasks and provide yourself feedback to help work towards completing your chosen goal</p>
+            <!-- <button class="btn-primary btn-large start-session-btn" onclick={openWelcomePopup}>
                 🎯 Start New Session
-            </button>
+            </button> -->
+            <Tasks/>
         {/if}
     </div>
     
@@ -129,7 +131,7 @@
 
 
 <!-- Welcome Popup -->
-<Popup bind:isOpen={showWelcomePopup} title="Welcome to Session Tracker" showCloseButton={false}>
+<Popup bind:isOpen={showWelcomePopup} title="Welcome to Activity Tracker" showCloseButton={false}>
     <div class="popup-inner">
         {#if welcomePage === 1}
             <h2>Welcome, Test Participant!</h2>

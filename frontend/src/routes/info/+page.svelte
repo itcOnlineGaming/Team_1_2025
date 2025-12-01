@@ -41,7 +41,7 @@
             <!-- About Section -->
             <div class="info-card">
                 <h2>About This App</h2>
-                <p>Session Tracker is a productivity tool designed to help you monitor work sessions, track patterns, and reflect on your progress.</p>
+                <p>Activity Tracker is a productivity tool designed to help you monitor work sessions, track patterns, and reflect on your progress.</p>
                 <p><strong>Version:</strong> 1.0.0</p>
                 <p><strong>Built for:</strong> Academic Research Project</p>
             </div>
