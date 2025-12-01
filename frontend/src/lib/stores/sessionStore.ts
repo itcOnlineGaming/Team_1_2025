@@ -28,6 +28,7 @@ export interface ActiveSession {
 	templateName: string;
 	questions: Question[];
 	startTime: number;
+	plannedDuration: number; // in seconds
 	group?: string; // Optional group name
 	// optional task reference
 	taskId?: string;
@@ -97,8 +98,8 @@ function createSessionStore() {
 		sessions: { subscribe: sessions.subscribe },
 		activeSession: { subscribe: activeSession.subscribe },
 
-		// startSession accepts the template and optional task reference
-		startSession: (template: { id: string; name: string; questions: Question[] }, task?: { id: string; name: string }) => {
+		// startSession accepts the template, duration in minutes, and optional task reference
+		startSession: (template: { id: string; name: string; questions: Question[] }, durationMinutes: number = 1, task?: { id: string; name: string }) => {
 			// Determine next session index per task (or global if no task)
 			let nextIndex = 1;
 			sessions.update((current) => {
@@ -116,7 +117,8 @@ function createSessionStore() {
 				templateId: template.id,
 				templateName: `Session ${nextIndex}`,
 				questions: template.questions,
-				startTime: Date.now()
+				startTime: Date.now(),
+				plannedDuration: durationMinutes * 60 // convert minutes to seconds
 			};
 
 			// attach task info if provided

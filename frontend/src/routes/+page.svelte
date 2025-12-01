@@ -3,8 +3,10 @@
     import SessionTimer from '$lib/components/SessionTimer.svelte';
     import SessionGraphs from '$lib/components/SessionGraphs.svelte';
     import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
+    import TemplateSelectorModal from '$lib/components/TemplateSelectorModal.svelte';
     import { sessionStore } from '$lib/stores/sessionStore';
     import { taskStore, type Task } from '$lib/stores/taskStore';
+    import { evaluationTemplates } from '$lib/data/evaluationTemplates';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import { base } from '$app/paths';
@@ -13,6 +15,7 @@
     let showWelcomePopup = $state(false);  // Changed to false so it doesn't show on initial load
     let showGraphs = $state(false);
     let showEndTestPrompt = $state(false);
+    let showTemplateSelector = $state(false);
     let activeSession = $state<any>(null);
     let tasks = $state<Task[]>([]);
     let allSessions = $state<any[]>([]);
@@ -50,12 +53,22 @@
 
     function handleStartSession() {
         showWelcomePopup = false;
-        // Start session directly without any template
+        // Show template selector before starting session
+        showTemplateSelector = true;
+    }
+
+    function handleTemplateSelect(template: any, duration: number) {
+        showTemplateSelector = false;
+        // Start session with selected template and duration
         sessionStore.startSession({
-            id: 'direct',
-            name: 'Work Session',
-            questions: [] // Questions will be added during evaluation
-        });
+            id: template.id,
+            name: template.name,
+            questions: [] // Questions will be loaded in evaluation page
+        }, duration);
+    }
+
+    function cancelTemplateSelection() {
+        showTemplateSelector = false;
     }
 
     function openWelcomePopup() {
@@ -73,12 +86,8 @@
 
     function handleStartAnother() {
         showEndTestPrompt = false;
-        // Start directly without any template
-        sessionStore.startSession({
-            id: 'direct',
-            name: 'Work Session',
-            questions: []
-        });
+        // Show template selector
+        showTemplateSelector = true;
     }
 
     function handleFinish() {
@@ -268,6 +277,14 @@
         {/if}
     </div>
 </Popup>
+
+<!-- Template Selector Modal -->
+<TemplateSelectorModal
+    bind:isOpen={showTemplateSelector}
+    templates={evaluationTemplates}
+    onSelect={handleTemplateSelect}
+    onCancel={cancelTemplateSelection}
+/>
 
 
 
@@ -584,7 +601,6 @@
         padding-top: 1.5rem;
         border-top: 2px solid var(--color-border);
     }
-
 
     .pagination-info {
         text-align: center;

@@ -5,6 +5,8 @@
     import { taskStore, type Task } from '$lib/stores/taskStore';
     import { sessionStore, type Session } from '$lib/stores/sessionStore';
     import MobileBottomNav from '$lib/components/MobileBottomNav.svelte';
+    import TemplateSelectorModal from '$lib/components/TemplateSelectorModal.svelte';
+    import { evaluationTemplates } from '$lib/data/evaluationTemplates';
     import { onMount } from 'svelte';
 
     let task: Task | null = null;
@@ -12,6 +14,7 @@
     let loading = true;
     let starting = false;
     let showFinishModal = false;
+    let showTemplateSelector = false;
     let feedbackText = '';
     let expandedSession: string | null = null;
 
@@ -42,15 +45,31 @@
 
     function startSession() {
         if (!task) return;
+        // Show template selector instead of starting directly
+        showTemplateSelector = true;
+    }
+
+    function handleTemplateSelect(template: any, duration: number) {
+        if (!task) return;
+        
+        showTemplateSelector = false;
         starting = true;
+        
         try {
-            const template = { id: 'direct', name: task.name, questions: [] };
-            sessionStore.startSession(template, { id: task.id, name: task.name });
+            sessionStore.startSession(
+                { id: template.id, name: template.name, questions: [] },
+                duration,
+                { id: task.id, name: task.name }
+            );
             goto(`${base}/`);
         } catch (err) {
             console.error('Failed to start session', err);
             starting = false;
         }
+    }
+
+    function cancelTemplateSelection() {
+        showTemplateSelector = false;
     }
 
     function deleteTask() {
@@ -250,6 +269,14 @@
         </div>
     </div>
 {/if}
+
+<!-- Template Selector Modal -->
+<TemplateSelectorModal
+    bind:isOpen={showTemplateSelector}
+    templates={evaluationTemplates}
+    onSelect={handleTemplateSelect}
+    onCancel={cancelTemplateSelection}
+/>
 
 <MobileBottomNav />
 
@@ -472,6 +499,7 @@
         overflow: hidden;
         margin-bottom: 0.5rem;
         transition: all 0.2s ease;
+        background: var(--color-bg-primary);
     }
 
     .session-item:last-child {
@@ -483,13 +511,21 @@
         grid-template-columns: 1fr auto;
         gap: 2rem;
         padding: 1rem;
-        background: var(--color-bg-primary);
+        background: transparent;
         transition: all 0.2s ease;
     }
 
     .table-row:hover {
         background: var(--color-bg-secondary);
-        border-color: var(--color-accent);
+    }
+
+    .table-row:hover .session-name {
+        color: var(--color-text-primary);
+    }
+
+    .table-row:hover .session-date {
+        color: var(--color-text-secondary);
+        opacity: 1;
     }
 
     .session-details {
@@ -567,13 +603,14 @@
     }
 
     .session-name {
-        color: var(--color-text-primary);
+        color: var(--color-text-on-dark);
         font-weight: 500;
     }
 
     .session-date {
-        color: var(--color-text-secondary);
+        color: var(--color-text-on-dark);
         font-size: 0.85rem;
+        opacity: 0.8;
     }
 
     .col-rating {

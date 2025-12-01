@@ -11,11 +11,12 @@
     interface Props {
         templates: Template[];
         selectedId?: string;
-        onSelect: (template: Template) => void;
+        onSelect: (template: Template, duration: number) => void;
     }
 
     let { templates = [], selectedId = '', onSelect }: Props = $props();
     let selectedPreview: Template | null = $state(null);
+    let duration = $state(1); // Timer duration in minutes, default to 1
 
     function openPreview(template: Template) {
         selectedPreview = template;
@@ -26,8 +27,18 @@
     }
 
     function selectTemplate(template: Template) {
-        onSelect(template);
+        onSelect(template, duration);
         closePreview();
+    }
+    
+    // Format duration display
+    function formatDuration(minutes: number): string {
+        if (minutes === 1) return '1 minute';
+        if (minutes < 60) return `${minutes} minutes`;
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        if (mins === 0) return hours === 1 ? '1 hour' : `${hours} hours`;
+        return `${hours}h ${mins}m`;
     }
 
     function getQuestionTypeIcon(type: string): string {
@@ -132,6 +143,28 @@
                     <p>{selectedPreview.description}</p>
                 </div>
             {/if}
+
+            <!-- Timer Duration Slider -->
+            <div class="timer-section">
+                <label for="duration-slider-old" class="timer-label">
+                    <span class="timer-icon">⏱️</span>
+                    <span>Session Duration: <strong>{formatDuration(duration)}</strong></span>
+                </label>
+                <input 
+                    id="duration-slider-old"
+                    type="range" 
+                    min="1" 
+                    max="120" 
+                    bind:value={duration}
+                    class="duration-slider"
+                />
+                <div class="slider-labels">
+                    <span>1 min</span>
+                    <span>30 min</span>
+                    <span>1 hr</span>
+                    <span>2 hrs</span>
+                </div>
+            </div>
 
             <div class="modal-body">
                 <h3>Questions ({selectedPreview.questions.length})</h3>
@@ -333,6 +366,79 @@
         margin: 0;
         color: var(--color-text-secondary);
         line-height: 1.6;
+    }
+
+    .timer-section {
+        padding: 1rem 1.5rem;
+        background: var(--color-bg-secondary);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .timer-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text-primary);
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        cursor: default;
+    }
+
+    .timer-icon {
+        font-size: 1.5rem;
+    }
+
+    .duration-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 5px;
+        background: var(--color-border);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .duration-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(123, 104, 166, 0.3);
+        transition: all 0.2s;
+    }
+
+    .duration-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(123, 104, 166, 0.4);
+    }
+
+    .duration-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        cursor: pointer;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(123, 104, 166, 0.3);
+        transition: all 0.2s;
+    }
+
+    .duration-slider::-moz-range-thumb:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(123, 104, 166, 0.4);
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--color-text-secondary);
     }
 
     .modal-body {
