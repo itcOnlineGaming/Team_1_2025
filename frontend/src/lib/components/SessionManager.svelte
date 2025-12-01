@@ -159,6 +159,21 @@
         min-height: 200px;
     }
 
+    /* Hide the start button by default and reveal on hover or keyboard focus */
+    .session-controls .btn-primary {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .session-manager:hover .session-controls .btn-primary,
+    .session-manager:focus-within .session-controls .btn-primary {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+
     .btn-large {
         padding: 1.5rem 3rem;
         font-size: 1.2rem;

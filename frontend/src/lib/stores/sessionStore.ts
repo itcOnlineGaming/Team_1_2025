@@ -18,6 +18,8 @@ export interface Session {
 	overallRating?: number; // The first question's star rating
 	group?: string; // Optional group name for organizing sessions
 	notes?: string; // Optional notes about the session
+	taskId: string;
+	taskName: string;
 }
 
 export interface ActiveSession {
@@ -27,6 +29,9 @@ export interface ActiveSession {
 	questions: Question[];
 	startTime: number;
 	group?: string; // Optional group name
+	// optional task reference
+	taskId: string;
+	taskName: string;
 }
 
 function createSessionStore() {
@@ -80,7 +85,8 @@ function createSessionStore() {
 		sessions: { subscribe: sessions.subscribe },
 		activeSession: { subscribe: activeSession.subscribe },
 
-		startSession: (template: { id: string; name: string; questions: Question[] }) => {
+		// startSession accepts the template and optional task reference
+		startSession: (template: { id: string; name: string; questions: Question[] }, task?: { id: string; name: string }) => {
 			const session: ActiveSession = {
 				id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
 				templateId: template.id,
@@ -88,6 +94,12 @@ function createSessionStore() {
 				questions: template.questions,
 				startTime: Date.now()
 			};
+
+			// attach task info if provided
+			if (task) {
+				session.taskId = task.id;
+				session.taskName = task.name;
+			}
 			activeSession.set(session);
 		},
 
@@ -122,6 +134,9 @@ function createSessionStore() {
 				responses,
 				overallRating
 			};
+
+			if (session.taskId) completedSession.taskId = session.taskId;
+			if (session.taskName) completedSession.taskName = session.taskName;
 
 			sessions.update((s) => [...s, completedSession]);
 			activeSession.set(null);
