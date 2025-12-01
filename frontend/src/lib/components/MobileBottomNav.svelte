@@ -29,6 +29,18 @@
     </button>
     <button 
         class="nav-item" 
+        class:active={isActive(`${base}/tasks`)}
+        onclick={() => goto(`${base}/tasks`)}
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="9" x2="15" y2="9"></line>
+            <line x1="9" y1="15" x2="15" y2="15"></line>
+        </svg>
+        <span>Tasks</span>
+    </button>
+    <button 
+        class="nav-item" 
         class:active={isActive(`${base}/`) && currentPath === `${base}/`}
         onclick={() => goto(`${base}/`)}
     >

@@ -41,7 +41,7 @@
             <!-- About Section -->
             <div class="info-card">
                 <h2>About This App</h2>
-                <p>Session Tracker is a productivity tool designed to help you monitor work sessions, track patterns, and reflect on your progress.</p>
+                <p>Activity Tracker is a productivity tool designed to help you monitor work sessions, track patterns, and reflect on your progress.</p>
                 <p><strong>Version:</strong> 1.0.0</p>
                 <p><strong>Built for:</strong> Academic Research Project</p>
             </div>
@@ -103,24 +103,120 @@
 
             <!-- How to Use Section -->
             <div class="info-card">
-                <h2>How to Use</h2>
-                <ol class="how-to-list">
-                    <li>Click <strong>"Start New Session"</strong> on the home page</li>
-                    <li>Work on your task while the timer runs in the background</li>
-                    <li>Click <strong>"End Session"</strong> when you're finished</li>
-                    <li>Answer the post-session questionnaire using the embedded Google Form</li>
-                    <li>View your analytics, search past sessions, and earn stars from your ratings</li>
-                </ol>
-                <p><strong>Pro Tips:</strong></p>
-                <ul class="tips-list">
-                    <li>Use star ratings to earn stars for the rewards store</li>
-                    <li>Group related sessions together for easier tracking</li>
-                    <li>Add notes to sessions for future reference</li>
-                    <li>Duplicate questions from past sessions to maintain consistency</li>
-                    <li>Export your data as HTML reports for external review</li>
-                </ul>
-                <div class="info-note">
-                    <strong>Note:</strong> The post-session questionnaire is now completed via an embedded Google Form for easier research data collection.
+                <h2>📚 How to Use - Full Task Pipeline</h2>
+                <p>Follow this step-by-step guide to get the most out of Activity Tracker by creating tasks, running sessions, and tracking your progress.</p>
+                
+                <div class="pipeline-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Create a Task</h3>
+                            <p>Go to the <strong>Tasks</strong> page. Click the <strong>"+ Create New Task"</strong> button at the bottom.</p>
+                            <ul class="sub-list">
+                                <li><strong>Name:</strong> Enter your task name (e.g., "Study for Biology Exam")</li>
+                                <li><strong>Goal:</strong> Optionally add a goal or target for this task</li>
+                                <li>Click <strong>"Create task"</strong> to save</li>
+                            </ul>
+                            <p class="step-note">💡 Your new task will appear in the "In Progress" section of the Tasks page.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Start a Session</h3>
+                            <p>You can start a session in two ways:</p>
+                            <ul class="sub-list">
+                                <li><strong>From Tasks page:</strong> Hover over a task card and click <strong>"▶ Start Session"</strong></li>
+                                <li><strong>From Task Details:</strong> Click <strong>"Details"</strong> on a task, then click the large circular <strong>"▶ Start New Session"</strong> button</li>
+                            </ul>
+                            <p class="step-note">⏱️ You'll be taken to the home page where the session timer will display. The timer automatically tracks your work time.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Work & End Session</h3>
+                            <p>Work on your task while the timer runs in the background.</p>
+                            <ul class="sub-list">
+                                <li>Take your time - the timer keeps running</li>
+                                <li>When finished or taking a break, click <strong>"End Session"</strong> on the timer</li>
+                            </ul>
+                            <p class="step-note">✨ After ending a session, you'll be taken to the evaluation page.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Evaluate Your Session</h3>
+                            <p>Answer questions about your session to provide feedback:</p>
+                            <ul class="sub-list">
+                                <li>Choose pre-defined questions from templates (e.g., "How focused were you?")</li>
+                                <li>Or create your own custom questions</li>
+                                <li>Rate using <strong>1-5 stars</strong> or provide <strong>text responses</strong></li>
+                                <li>Add optional <strong>notes</strong> or group sessions by category</li>
+                            </ul>
+                            <p class="step-note">📝 Your responses are saved with the session for future reference and analytics.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h3>View Session History</h3>
+                            <p>After completing a session, view all your sessions for a task:</p>
+                            <ul class="sub-list">
+                                <li>Go to the <strong>Tasks</strong> page</li>
+                                <li>Click <strong>"Details"</strong> on a task card</li>
+                                <li>Scroll to <strong>"Previous Sessions"</strong> section</li>
+                                <li>Click any session row to expand and see full questionnaire responses</li>
+                            </ul>
+                            <p class="step-note">📊 Each session shows the session name, date, and average rating from your responses.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h3>Complete a Task</h3>
+                            <p>When you've finished working on a task:</p>
+                            <ul class="sub-list">
+                                <li>Go to the task's <strong>Details</strong> page</li>
+                                <li>Click the green <strong>"✓ Finish Task"</strong> button</li>
+                                <li>A modal will ask <strong>"How did the task go?"</strong></li>
+                                <li>Enter your feedback (e.g., "Passed the exam with 85%") and click <strong>"Mark as Complete"</strong></li>
+                            </ul>
+                            <p class="step-note">✅ Your task will move to the "Completed" section. You can still view session history but cannot start new sessions.</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">7</div>
+                        <div class="step-content">
+                            <h3>Track Progress & Earn Rewards</h3>
+                            <p>Monitor your productivity across all tasks:</p>
+                            <ul class="sub-list">
+                                <li><strong>Home page:</strong> View your 3 most recent in-progress tasks</li>
+                                <li><strong>Tasks page:</strong> See all in-progress and completed tasks with session counts and average ratings</li>
+                                <li><strong>Results page:</strong> View detailed analytics and charts of all your sessions</li>
+                                <li><strong>Store page:</strong> Earn stars from session ratings and redeem them for rewards</li>
+                            </ul>
+                            <p class="step-note">📈 All data is saved locally in your browser - nothing is sent to our servers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pro-tips-section">
+                    <h3>💡 Pro Tips</h3>
+                    <ul class="tips-list">
+                        <li><strong>Use star ratings:</strong> Higher ratings from evaluations earn more stars for the rewards store</li>
+                        <li><strong>Create templates:</strong> Save question sets as templates to reuse across sessions</li>
+                        <li><strong>Add session notes:</strong> Include personal notes for context when reviewing past sessions</li>
+                        <li><strong>Track patterns:</strong> Use the Results page to identify trends in your productivity</li>
+                        <li><strong>Group sessions:</strong> Organize related sessions with consistent categories for better analysis</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -373,6 +469,101 @@
         color: var(--color-text-primary);
     }
 
+    .pipeline-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .step {
+        display: flex;
+        gap: 1.5rem;
+        background: var(--color-bg-secondary, rgba(123, 104, 166, 0.05));
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--color-primary);
+        transition: all 0.2s;
+    }
+
+    .step:hover {
+        box-shadow: 0 2px 8px rgba(123, 104, 166, 0.1);
+    }
+
+    .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: var(--color-primary);
+        color: white;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .step-content {
+        flex: 1;
+    }
+
+    .step-content h3 {
+        margin: 0 0 0.75rem 0;
+        color: var(--color-primary);
+        font-size: 1.2rem;
+    }
+
+    .step-content p {
+        margin: 0 0 0.75rem 0;
+        color: var(--color-text-primary);
+        line-height: 1.6;
+    }
+
+    .sub-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 0.75rem 0;
+    }
+
+    .sub-list li {
+        padding: 0.5rem 0 0.5rem 1.5rem;
+        color: var(--color-text-primary);
+        position: relative;
+        line-height: 1.6;
+    }
+
+    .sub-list li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+
+    .step-note {
+        background: rgba(123, 104, 166, 0.15);
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        border-left: 3px solid var(--color-primary);
+        margin: 0.75rem 0 0 0 !important;
+        font-size: 0.95rem;
+        color: var(--color-text-primary);
+        line-height: 1.5;
+    }
+
+    .pro-tips-section {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--color-border);
+    }
+
+    .pro-tips-section h3 {
+        margin: 0 0 1rem 0;
+        color: var(--color-primary);
+        font-size: 1.25rem;
+    }
+
     @media (max-width: 768px) {
         .info-page {
             padding: 1rem;
@@ -402,6 +593,39 @@
         .btn-back {
             top: 1rem;
             left: 1rem;
+        }
+
+        .step {
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1.25rem;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            font-size: 1rem;
+        }
+
+        .step-content h3 {
+            font-size: 1.1rem;
+        }
+
+        .step-content p {
+            font-size: 0.95rem;
+        }
+
+        .sub-list li {
+            padding: 0.4rem 0 0.4rem 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .pro-tips-section h3 {
+            font-size: 1.1rem;
+        }
+
+        .tips-list li {
+            font-size: 0.9rem;
         }
     }
 </style>

@@ -18,6 +18,8 @@ export interface Session {
 	overallRating?: number; // The first question's star rating
 	group?: string; // Optional group name for organizing sessions
 	notes?: string; // Optional notes about the session
+	taskId?: string;
+	taskName?: string;
 }
 
 export interface ActiveSession {
@@ -27,6 +29,9 @@ export interface ActiveSession {
 	questions: Question[];
 	startTime: number;
 	group?: string; // Optional group name
+	// optional task reference
+	taskId?: string;
+	taskName?: string;
 }
 
 function createSessionStore() {
@@ -38,8 +43,20 @@ function createSessionStore() {
 		const stored = localStorage.getItem('sessions');
 		if (stored) {
 			try {
-				const parsedSessions = JSON.parse(stored);
-				sessions.set(parsedSessions);
+				const parsedSessions: Session[] = JSON.parse(stored);
+				// Migrate legacy session names to 'Session N' format per task
+				const migratedSessions = parsedSessions.map((session, idx) => {
+					// If templateName matches the task name, it's legacy; renumber it
+					if (session.taskId && session.taskName && session.templateName === session.taskName) {
+						// Count how many sessions with the same taskId came before this one
+						const priorCount = parsedSessions
+							.slice(0, idx)
+							.filter((s) => s.taskId === session.taskId).length;
+						return { ...session, templateName: `Session ${priorCount + 1}` };
+					}
+					return session;
+				});
+				sessions.set(migratedSessions);
 			} catch (error) {
 				console.error('Error parsing sessions from localStorage:', error);
 				localStorage.removeItem('sessions');
@@ -80,14 +97,33 @@ function createSessionStore() {
 		sessions: { subscribe: sessions.subscribe },
 		activeSession: { subscribe: activeSession.subscribe },
 
-		startSession: (template: { id: string; name: string; questions: Question[] }) => {
+		// startSession accepts the template and optional task reference
+		startSession: (template: { id: string; name: string; questions: Question[] }, task?: { id: string; name: string }) => {
+			// Determine next session index per task (or global if no task)
+			let nextIndex = 1;
+			sessions.update((current) => {
+				if (task) {
+					const countForTask = current.filter((s) => s.taskId === task.id).length;
+					nextIndex = countForTask + 1;
+				} else {
+					nextIndex = current.length + 1;
+				}
+				return current; // no mutation here
+			});
+
 			const session: ActiveSession = {
 				id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
 				templateId: template.id,
-				templateName: template.name,
+				templateName: `Session ${nextIndex}`,
 				questions: template.questions,
 				startTime: Date.now()
 			};
+
+			// attach task info if provided
+			if (task) {
+				session.taskId = task.id;
+				session.taskName = task.name;
+			}
 			activeSession.set(session);
 		},
 
@@ -123,6 +159,9 @@ function createSessionStore() {
 				overallRating
 			};
 
+			if (session.taskId) completedSession.taskId = session.taskId;
+			if (session.taskName) completedSession.taskName = session.taskName;
+
 			sessions.update((s) => [...s, completedSession]);
 			activeSession.set(null);
 		},
@@ -142,6 +181,9 @@ function createSessionStore() {
 			sessions.update((s) =>
 				s.map((session) => (session.id === sessionId ? { ...session, ...updates } : session))
 			);
+		},
+		deleteSessionsByTaskId: (taskId: string) => {
+			sessions.update((s) => s.filter((session) => session.taskId !== taskId));
 		}
 	};
 }
