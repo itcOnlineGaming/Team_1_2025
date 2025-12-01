@@ -1,5 +1,6 @@
 <script lang="ts">
     import { sessionStore, sessionStats } from '$lib/stores/sessionStore';
+    import { taskStore, type Task } from '$lib/stores/taskStore';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import type { Session } from '$lib/stores/sessionStore';
@@ -9,62 +10,24 @@
 	import { base } from '$app/paths';
 
     let sessions = $state<Session[]>([]);
+    let tasks = $state<Task[]>([]);
     let stats = $state<any>(null);
-    let expandedGroups = $state<Set<string>>(new Set(['General'])); // General expanded by default
+    let expandedTasks = $state<Set<string>>(new Set());
     let expandedSessions = $state<Set<string>>(new Set());
     let searchQuery = $state('');
     let editingSession = $state<Session | null>(null);
     let editGroup = $state('');
     let editNotes = $state('');
 
-    // Search and filter sessions
-    let filteredSessions = $derived(() => {
-        if (!searchQuery.trim()) return sessions;
+    // Search and filter tasks by name or goal only
+    let filteredTasks = $derived(() => {
+        if (!searchQuery.trim()) return tasks;
         
         const query = searchQuery.toLowerCase();
-        return sessions.filter(session => {
-            const nameMatch = session.templateName?.toLowerCase().includes(query);
-            const groupMatch = session.group?.toLowerCase().includes(query);
-            const notesMatch = session.notes?.toLowerCase().includes(query);
-            const dateMatch = new Date(session.startTime).toLocaleDateString().includes(query);
-            const responsesMatch = Object.values(session.responses).some(r => 
-                r.question?.toLowerCase().includes(query) || 
-                r.answer?.toLowerCase().includes(query)
-            );
-            
-            return nameMatch || groupMatch || notesMatch || dateMatch || responsesMatch;
-        });
-    });
-
-    // Group sessions by their group property
-    let groupedSessions = $derived(() => {
-        const groups: Record<string, Session[]> = {};
-        
-        filteredSessions().forEach(session => {
-            const groupName = session.group || 'General';
-            if (!groups[groupName]) {
-                groups[groupName] = [];
-            }
-            groups[groupName].push(session);
-        });
-
-        // Sort sessions within each group by start time (newest first)
-        Object.keys(groups).forEach(groupName => {
-            groups[groupName].sort((a, b) => b.startTime - a.startTime);
-        });
-
-        return groups;
-    });
-
-    let sortedGroupNames = $derived(() => {
-        const groups = groupedSessions();
-        const names = Object.keys(groups);
-        
-        // Sort: General first, then alphabetically
-        return names.sort((a, b) => {
-            if (a === 'General') return -1;
-            if (b === 'General') return 1;
-            return a.localeCompare(b);
+        return tasks.filter(task => {
+            const taskNameMatch = task.name?.toLowerCase().includes(query);
+            const taskGoalMatch = task.goal?.toLowerCase().includes(query);
+            return taskNameMatch || taskGoalMatch;
         });
     });
 
@@ -77,20 +40,25 @@
             stats = s;
         });
 
+        const unsubscribeTasks = taskStore.subscribe((t) => {
+            tasks = t;
+        });
+
         return () => {
             unsubscribeSessions();
             unsubscribeStats();
+            unsubscribeTasks();
         };
     });
 
-    function toggleGroup(groupName: string) {
-        const newSet = new Set(expandedGroups);
-        if (newSet.has(groupName)) {
-            newSet.delete(groupName);
+    function toggleTask(taskId: string) {
+        const newSet = new Set(expandedTasks);
+        if (newSet.has(taskId)) {
+            newSet.delete(taskId);
         } else {
-            newSet.add(groupName);
+            newSet.add(taskId);
         }
-        expandedGroups = newSet;
+        expandedTasks = newSet;
     }
 
     function toggleSession(sessionId: string) {
@@ -103,12 +71,12 @@
         expandedSessions = newSet;
     }
 
-    function expandAllGroups() {
-        expandedGroups = new Set(sortedGroupNames());
+    function expandAllTasks() {
+        expandedTasks = new Set(filteredTasks().map(t => t.id));
     }
 
-    function collapseAllGroups() {
-        expandedGroups = new Set();
+    function collapseAllTasks() {
+        expandedTasks = new Set();
     }
 
     function openEditSession(session: Session) {
@@ -341,6 +309,10 @@
                 <div class="stat-label">Total Sessions</div>
             </div>
             <div class="stat-card">
+                <div class="stat-value">${tasks.length}</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+            <div class="stat-card">
                 <div class="stat-value">${stats.totalQuestions || 0}</div>
                 <div class="stat-label">Questions Answered</div>
             </div>
@@ -353,8 +325,6 @@
                 <div class="stat-label">Avg Duration</div>
             </div>
         </div>
-        
-        ${generateGroupedSessionsHTML()}
         
         <div class="footer">
             <p>Session Tracker Report • ${exportDate}</p>
@@ -388,51 +358,19 @@
     }
 
     function generateGroupedSessionsHTML(): string {
-        const groups = groupedSessions();
-        const groupNames = sortedGroupNames();
-        
-        return groupNames.map(groupName => {
-            const groupSessions = groups[groupName];
-            
-            const sessionsHTML = groupSessions.map(session => {
-                const responseEntries = Object.entries(session.responses);
-                const responsesHTML = responseEntries.length > 0 
-                    ? `<div class="responses">
-                        ${responseEntries.map(([id, response], index) => {
-                            const answerHTML = response.rating !== undefined
-                                ? `<div class="stars">${'★'.repeat(response.rating)}${'☆'.repeat(5 - response.rating)} ${response.rating}/5</div>`
-                                : `<div class="answer">${response.answer || 'No response'}</div>`;
-                            
-                            return `<div class="response-item">
-                                <div class="question">Q${index + 1}: ${response.question || 'Question'}</div>
-                                ${answerHTML}
-                            </div>`;
-                        }).join('')}
-                    </div>`
-                    : '<p style="color: #6b5e7c; font-style: italic;">No evaluation questions answered</p>';
-                
-                return `<div class="session-card">
-                    <div class="session-header">
-                        <div>
-                            <div class="session-title">${session.templateName || 'Work Session'}</div>
-                            <div class="session-date">${new Date(session.startTime).toLocaleString()}</div>
-                        </div>
-                        <div class="session-stats">
-                            <span class="stat-pill">⏱️ ${formatDuration(session.duration)}</span>
-                            ${session.overallRating ? `<span class="stat-pill rating-pill">⭐ ${session.overallRating}/5</span>` : ''}
-                        </div>
-                    </div>
-                    ${responsesHTML}
-                </div>`;
-            }).join('');
-            
-            return `<div class="group-section">
-                <div class="group-header">${groupName} (${groupSessions.length})</div>
-                ${sessionsHTML}
-            </div>`;
-        }).join('');
+        // TODO: Implement if needed for export
+        return '';
     }
 </script>
+
+<svelte:head>
+    <title>Task Analytics</title>
+    <meta name="description" content="Task Analytics: aggregate insights across all tasks" />
+    <meta property="og:title" content="Task Analytics" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Activity Tracker" />
+    <meta name="robots" content="index,follow" />
+</svelte:head>
 
 <div class="results-page">
     <div class="page-header">
@@ -444,7 +382,7 @@
                 <span class="btn-text">Back</span>
             </button>
             <div class="page-title">
-                <h1>Session Results</h1>
+                <h1>Task Analytics</h1>
                 {#if stats}
                     <p class="subtitle">{stats.totalSessions} session{stats.totalSessions !== 1 ? 's' : ''} tracked</p>
                 {/if}
@@ -473,20 +411,20 @@
         <div class="content-wrapper">
             <SessionGraphs showTable={false} />
             
-            <!-- Sessions Detail List -->
+            <!-- Task History (grouped by task) -->
             <div class="sessions-section">
                 <div class="section-header">
-                    <h2>Session History</h2>
+                    <h2>Task History</h2>
                     <div class="header-controls">
-                        <span class="session-count">{sessions.length} total</span>
+                        <span class="session-count">{filteredTasks().length} tasks</span>
                         <div class="group-controls">
-                            <button class="btn-control" onclick={expandAllGroups} title="Expand all groups">
+                            <button class="btn-control" onclick={expandAllTasks} title="Expand all tasks">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="7 13 12 18 17 13"></polyline>
                                     <polyline points="7 6 12 11 17 6"></polyline>
                                 </svg>
                             </button>
-                            <button class="btn-control" onclick={collapseAllGroups} title="Collapse all groups">
+                            <button class="btn-control" onclick={collapseAllTasks} title="Collapse all tasks">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="17 11 12 6 7 11"></polyline>
                                     <polyline points="17 18 12 13 7 18"></polyline>
@@ -505,7 +443,7 @@
                     <input 
                         type="text" 
                         class="search-input"
-                        placeholder="Search sessions by name, date, group, notes, or content..."
+                        placeholder="Search tasks by name or goal..."
                         bind:value={searchQuery}
                     />
                     {#if searchQuery}
@@ -518,38 +456,38 @@
                     {/if}
                 </div>
 
-                {#if searchQuery && filteredSessions().length === 0}
+                {#if searchQuery && filteredTasks().length === 0}
                     <div class="no-results">
                         <div class="no-results-icon">🔍</div>
-                        <h3>No sessions found</h3>
+                        <h3>No tasks found</h3>
                         <p>Try adjusting your search terms</p>
                         <button class="btn-primary" onclick={() => searchQuery = ''}>Clear Search</button>
                     </div>
-                {:else if filteredSessions().length > 0}
+                {:else if filteredTasks().length > 0}
                     <div class="sessions-groups">
-                        {#each sortedGroupNames() as groupName (groupName)}
-                            {@const groupSessions = groupedSessions()[groupName]}
-                            {@const isExpanded = expandedGroups.has(groupName)}
+                        {#each filteredTasks() as t (t.id)}
+                            {@const taskSessions = sessions.filter((s) => s.taskId === t.id)}
+                            {@const isExpanded = expandedTasks.has(t.id)}
                             <div class="session-group">
                                 <button 
                                     class="group-header"
-                                    onclick={() => toggleGroup(groupName)}
+                                    onclick={() => toggleTask(t.id)}
                                     tabindex="0"
-                                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleGroup(groupName)}
+                                    onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleTask(t.id)}
                                     aria-expanded={isExpanded}
                                 >
                                     <div class="group-title">
                                         <svg class="chevron" class:expanded={isExpanded} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <polyline points="9 18 15 12 9 6"></polyline>
                                         </svg>
-                                        <span class="group-name">{groupName}</span>
-                                        <span class="group-count">{groupSessions.length}</span>
+                                        <span class="group-name">{t.name}</span>
+                                        <span class="group-count">{taskSessions.length}</span>
                                     </div>
                                 </button>
                                 
                                 {#if isExpanded}
                                     <div class="group-content">
-                                        {#each groupSessions as session (session.id)}
+                                        {#each taskSessions as session (session.id)}
                                             {@const isSessionExpanded = expandedSessions.has(session.id)}
                                             <div class="session-wrapper">
                                                 <div class="session-header-row">
@@ -564,28 +502,8 @@
                                                             <polyline points="9 18 15 12 9 6"></polyline>
                                                         </svg>
                                                         <span>{session.templateName || 'Work Session'}</span>
-                                                        <span class="session-date-small">{new Date(session.startTime).toLocaleDateString()}</span>
                                                     </button>
-                                                    <div class="session-actions">
-                                                        <button class="btn-icon" onclick={() => openEditSession(session)} title="Edit group & notes">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                                            </svg>
-                                                        </button>
-                                                        <button class="btn-icon" onclick={() => duplicateSession(session)} title="Start new session with same questions">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
                                                 </div>
-                                                {#if session.notes}
-                                                    <div class="session-notes-preview">
-                                                        📝 {session.notes}
-                                                    </div>
-                                                {/if}
                                                 {#if isSessionExpanded}
                                                     <div class="session-detail-wrapper">
                                                         <SessionDetail {session} />
@@ -1054,53 +972,6 @@
         transform: translateX(4px);
     }
 
-    .session-date-small {
-        margin-left: auto;
-        font-size: 0.85rem;
-        font-weight: 500;
-        opacity: 0.7;
-    }
-
-    .session-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    .btn-icon {
-        background: var(--color-card-bg);
-        border: 2px solid var(--color-border);
-        border-radius: 8px;
-        padding: 0.6rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--color-text-primary);
-    }
-
-    .btn-icon svg {
-        width: 18px;
-        height: 18px;
-    }
-
-    .btn-icon:hover {
-        background: var(--color-primary);
-        color: white;
-        border-color: var(--color-primary);
-        transform: scale(1.05);
-    }
-
-    .session-notes-preview {
-        background: var(--color-bg-secondary);
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        margin-bottom: 0.75rem;
-        font-size: 0.9rem;
-        color: var(--color-text-secondary);
-        border-left: 3px solid var(--color-primary);
-    }
-
     .chevron-small {
         width: 16px;
         height: 16px;
@@ -1368,15 +1239,6 @@
         .chevron-small {
             width: 14px;
             height: 14px;
-        }
-
-        .btn-icon {
-            padding: 0.5rem;
-        }
-
-        .btn-icon svg {
-            width: 16px;
-            height: 16px;
         }
     }
 
