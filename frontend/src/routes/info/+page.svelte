@@ -135,11 +135,11 @@
         background-color: var(--color-bg-primary);
         padding: 2rem;
         padding-bottom: 6rem;
-        position: relative;
+        /* position: relative; */
     }
 
     .btn-back {
-        position: absolute;
+        position: sticky;
         top: 1.5rem;
         left: 1.5rem;
         background: var(--color-card-bg);

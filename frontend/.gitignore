@@ -23,3 +23,5 @@ yarn-error.log*
 
 # VSCode
 .vscode/
+build/
+frontend/build/

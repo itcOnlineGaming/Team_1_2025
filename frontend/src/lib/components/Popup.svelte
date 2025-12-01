@@ -73,12 +73,21 @@
     .popup-content {
         background: var(--color-card-bg);
         border-radius: 8px;
-        max-width: 90%;
+        width: 800px;
+        max-width: 95vw;
         max-height: 90vh;
-        overflow-y: auto;
         box-shadow: 0 4px 12px rgba(79, 52, 34, 0.2);
-        width: 500px;
         border: 1px solid var(--color-border);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .popup-content.wide {
+        width: 900px;
+        max-width: 98vw;
+        max-height: 90vh;
     }
 
     .popup-header {
@@ -121,5 +130,26 @@
     .popup-body {
         padding: 1.5rem;
         background-color: var(--color-card-bg);
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        overflow-y: auto;
+        min-height: 0;
     }
+
+    @media (max-width: 768px) {
+        .popup-content,
+        .popup-content.wide {
+            width: 98vw;
+            max-width: 98vw;
+            min-width: 0;
+        }
+        .popup-content iframe {
+            height: 60vh;
+        }
+    }
+
+           
+    
 </style>
