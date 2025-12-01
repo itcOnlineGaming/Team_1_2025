@@ -7,7 +7,7 @@
 </script>
 
 <div>
-  <button on:click={toggle} class="btn-add">➕ Add Reward</button>
+  <button id="add-reward-btn" on:click={toggle} class="btn-add">➕ Add Reward</button>
   {#if open}
     <div class="overlay" on:click={() => (open = false)}></div>
     <div class="dialog"><AddRewardModal on:added={(e) => { open = false; dispatch('added', e.detail); }} /></div>

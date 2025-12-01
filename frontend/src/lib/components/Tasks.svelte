@@ -274,7 +274,7 @@ $: if (!showCreate) {
 
             <!-- Always-visible floating create button (bottom-centered) -->
             <div class="create-floating" aria-hidden="false">
-                <button class="btn create" bind:this={createButton} onclick={openCreate} aria-haspopup="dialog" aria-controls="task-create-dialog">+ Create New Task</button>
+                <button id="create-task-btn" class="btn create" bind:this={createButton} onclick={openCreate} aria-haspopup="dialog" aria-controls="task-create-dialog">+ Create New Task</button>
             </div>
 
         </div>

@@ -7,6 +7,7 @@
     import { sessionStore } from '$lib/stores/sessionStore';
     import { taskStore, type Task } from '$lib/stores/taskStore';
     import { evaluationTemplates } from '$lib/data/evaluationTemplates';
+    import { tutorialStore } from '$lib/stores/tutorialStore';
     import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import { base } from '$app/paths';
@@ -44,12 +45,24 @@
             window.history.replaceState({}, '', '/');
         }
 
+        // Check if tutorial should auto-start
+        if (tutorialStore.shouldShowTutorial()) {
+            setTimeout(() => {
+                tutorialStore.startTutorial();
+            }, 1000);
+        }
+
         return () => {
             unsubscribeSession();
             unsubscribeTasks();
             unsubscribeSessions();
         };
     });
+
+    function startTutorial() {
+        tutorialStore.resetTutorial();
+        tutorialStore.startTutorial();
+    }
 
     function handleStartSession() {
         showWelcomePopup = false;
@@ -127,6 +140,14 @@
 <main>
     <!-- Desktop nav buttons -->
     <nav class="nav-buttons desktop-only">
+        <button class="nav-btn tutorial-btn" onclick={startTutorial}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            Tutorial
+        </button>
         <button class="nav-btn" onclick={() => goto(`${base}/store`)}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="9" cy="21" r="1"></circle>
@@ -164,10 +185,12 @@
     
     <div class="hero-content">
         {#if activeSession}
-            <SessionTimer 
-                session={activeSession} 
-                onEnd={handleEndSession}
-            />
+            <div id="session-timer">
+                <SessionTimer 
+                    session={activeSession} 
+                    onEnd={handleEndSession}
+                />
+            </div>
         {:else if !showGraphs && !showEndTestPrompt}
             <h1>Activity Tracker</h1>
             <p class="subtitle">Track your work sessions for tasks and provide yourself feedback to help work towards completing your chosen goal</p>
@@ -178,7 +201,7 @@
                     <div class="empty-state-card">
                         <p>No in-progress tasks yet</p>
                         <p class="empty-subtitle">Create a new task to get started and see your tasks appear here</p>
-                        <button class="btn-primary" onclick={goToTasks}>Create Your First Task</button>
+                        <button id="create-first-task-btn" class="btn-primary" onclick={goToTasks}>Create Your First Task</button>
                     </div>
                 {:else}
                     <div class="recent-tasks-list">
@@ -431,6 +454,12 @@
     .contact-btn:hover {
         background: var(--color-success);
         border-color: var(--color-success);
+    }
+
+    .tutorial-btn:hover {
+        background: #667eea;
+        border-color: #667eea;
+        color: white;
     }
 
     .desktop-only {
